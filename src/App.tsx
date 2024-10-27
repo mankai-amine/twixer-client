@@ -1,14 +1,17 @@
 import React from 'react';
-import Login from './components/Login';
-import Register from './components/Register';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import { BrowserRouter as Router, Route} from 'react-router-dom';
 import './styles.css';
 
 const App: React.FC = () => {
   return (
-    <div className="App">
-      <Login />
-    {/* <Register /> */}  {/* Uncomment this line to see the Register component */}
-</div>
+    <Router>
+
+        <Route path='/register' element={<Register />} />
+        <Route path='/login' element={<Login />} />
+
+    </Router>
   );
 };
 

@@ -50,7 +50,7 @@ const Register: React.FC = () => {
                                 <Form.Control
                                     type='password'
                                     placeholder='Please Enter A Password'
-                                    value={username}
+                                    value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     required
                                 />
