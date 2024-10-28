@@ -1,74 +1,79 @@
 import React, { useState } from 'react';
 import { Form, Button, Container, Row, Col } from 'react-bootstrap';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as Yup from 'yup';
+
+
+const registerSchema = Yup.object().shape({
+    username: Yup.string().required('Username is required'),
+    email: Yup.string().required('Email is required').email('Email is invalid'),
+    password: Yup.string().required('Password is required').min(6, 'Password must be at least 6 characters'),
+    confirmPassword: Yup.string()
+        .oneOf([Yup.ref('password'), undefined], 'Passwords must match')
+        .required('Confirm Password is required'),
+
+});
+
 
 const Register: React.FC = () => {
-    const [username, setUsername] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [error, setError] = useState('');
+    const [isSubmitted, setIsSubmitted] = useState(false);
 
-    const handleRegister = (event: React.FormEvent) => {
-        event.preventDefault(); 
-        setError('');
-        
-        if (password!== confirmPassword) {
-            setError('Passwords do not match');
-            return;
-        }
+    const { register, handleSubmit, formState: { errors } } = useForm({
+        resolver: yupResolver(registerSchema),
+    });
 
-        console.log('Registering with: ', username, email, password);   // placeholder because no database setup on my end
+    const onSubmit = (data: any) => {
+        console.log('Register data:', data);
+        setIsSubmitted(true);
     };
 
     return (
-        <Container className='d-flex justify-content-center align-items-center vh-100'>
+        <Container className='mt-5'>
             <Row className='justify-content-md-center'>
                 <Col md={6} lg={4}>
                     <div className='register-box text-center'>
                         <h2 className='mb-4 twixer-logo'> TwiXer</h2>
                          
-                         <Form onSubmit={handleRegister}>
+                         <Form onSubmit={handleSubmit(onSubmit)}>
                             <Form.Group controlId='formUsername' className='mb-3'>
                                 <Form.Control
                                     type='text'
                                     placeholder='Please Enter A Username'
-                                    value={username}
-                                    onChange={(e) => setUsername(e.target.value)}
-                                    required
+                                    {...register('username')}
                                 />
+                                {errors.username && <p className="text-danger">{errors.username.message}</p>}
                             </Form.Group>
                             <Form.Group controlId='formEmail' className='mb-3'>
                                 <Form.Control
                                     type='email'
                                     placeholder='Please Enter A Valid Email'
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    required
+                                    {...register('email')}
                                 />
+                                {errors.email && <p className="text-danger">{errors.email.message}</p>}
                             </Form.Group>
-                            <Form.Group controlId='formPassword' className='mb-3'>
+                            <Form.Group controlId="formPassword" className="mb-3">
                                 <Form.Control
-                                    type='password'
-                                    placeholder='Please Enter A Password'
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    required
+                                    type="password"
+                                    placeholder="Enter your password"
+                                    {...register('password')}
                                 />
+                                {errors.password && <p className="text-danger">{errors.password.message}</p>}
                             </Form.Group>
-                            <Form.Group controlId='formPassword' className='mb-3'>
+                            <Form.Group controlId="formConfirmPassword" className="mb-3">
                                 <Form.Control
-                                    type='password'
-                                    placeholder='Please Enter A Password'
-                                    value={confirmPassword}
-                                    onChange={(e) => setConfirmPassword(e.target.value)}
-                                    required
+                                    type="password"
+                                    placeholder="Confirm your password"
+                                    {...register('confirmPassword')}
                                 />
+                                {errors.confirmPassword && <p className="text-danger">{errors.confirmPassword.message}</p>}
                             </Form.Group>
-                            {error && <p className="text-danger">{error}</p>}
 
                             <Button variant='primary' type='submit' className='w-100 mb-3'>
                                 Register
                             </Button>
+
+                            {isSubmitted && <p className="text-success">Registration successful!</p>}
 
                             <div className='mt-3'>
                                 <p className='text-muted'>Already have an account? <a href='/login' className='login-link'>Login</a></p>
