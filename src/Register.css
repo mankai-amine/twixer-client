@@ -9,7 +9,7 @@
 
 /* Registration form container */
 .register-box {
-    background-color: #000;
+    background-color: #ababef;
     padding: 40px 30px;
     border-radius: 10px;
     max-width: 400px;
@@ -91,10 +91,11 @@
     margin-top: 10px;
 }
 
-.text-muted {
-    color: white !important;
-}
-
 .mt-3 {
     color: white !important;
 }
+
+.mb-4 {
+    color: white !important;
+}
+

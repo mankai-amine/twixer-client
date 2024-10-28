@@ -29,6 +29,7 @@ const Login: React.FC = () => {
     };
 
     return (
+        <div style={{ backgroundColor: '#0083b3', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <Container className='mt-5'>
             <Row className='justify-content-md-center'>
                 <Col md={6} lg={4}>
@@ -54,14 +55,14 @@ const Login: React.FC = () => {
                                 {errors.password && <p className="text-danger">{errors.password.message}</p>}
                             </Form.Group>
 
-                            <Button variant='primary' type='submit' className='w-100 mb-3'>
+                            <Button variant='primary' type='submit' className='w-100 mb-3 custom-button'>
                                 Login
                             </Button>
                             
                             {submissionStatus && <p className="text-success">{submissionStatus}</p>}
 
                             <div className="mt-3">
-                                <p className="text-muted">
+                                <p>
                                     Don't have an account? <a href="/register" className="sign-up-link">Sign up</a>
                                 </p>
                             </div>
@@ -70,6 +71,7 @@ const Login: React.FC = () => {
                 </Col>
             </Row>
         </Container>
+        </div>
     );
 };
 
