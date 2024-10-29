@@ -6,6 +6,7 @@ import Axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { UserContext } from "../helpers/UserContext";
 import FlashMessage from "../helpers/FlashMessage";
+import { Link } from 'react-router-dom';
 
 // Define the form schema with Yup
 const schema = Yup.object().shape({
@@ -71,7 +72,6 @@ export const Account = () => {
     };
 
     
-
     return (
         <div className="container mt-5 col-md-8">
             {flashMessage && (
@@ -114,6 +114,7 @@ export const Account = () => {
                 </div>
 
                 <button type="submit" className="btn btn-primary">Update</button>
+                <Link to="/password" className="btn btn-secondary ms-2">Change Password</Link>
             </form>
         </div>
     );
