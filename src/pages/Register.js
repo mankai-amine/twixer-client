@@ -5,6 +5,9 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 import axios from 'axios';
 
+const apiUrl = `${process.env.REACT_APP_API_URL}/users`;
+
+// TODO min and max ranges, regex
 const registerSchema = Yup.object().shape({
     username: Yup.string().required('Username is required'),
     email: Yup.string().required('Email is required').email('Email is invalid'),
@@ -25,7 +28,7 @@ const Register = () => {
 
     const onSubmit = async (data) => {
         try {
-            const response = await axios.post('http://localhost:3001/api/users', data);
+            const response = await axios.post(apiUrl, data);
     
             if (response.status === 201) {
                 setIsSubmitted(true);
