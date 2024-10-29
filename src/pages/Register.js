@@ -25,7 +25,7 @@ const Register = () => {
 
     const onSubmit = async (data) => {
         try {
-            const response = await axios.post('http://localhost:5000/api/users', data);
+            const response = await axios.post('http://localhost:3001/api/users', data);
     
             if (response.status === 201) {
                 setIsSubmitted(true);

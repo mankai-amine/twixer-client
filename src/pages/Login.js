@@ -7,7 +7,7 @@ import axios from 'axios';
 
 
 const loginSchema = Yup.object().shape({
-    email: Yup.string().required('Email is required').email('Email is invalid'),
+    username: Yup.string().required('Username is required'),
     password: Yup.string().required('Password is required'),
 });
 
@@ -24,7 +24,7 @@ const Login = () => {
 
     const onSubmit = async (data) => {
         try {
-            const response = await axios.post('http://localhost:5000/api/users/login', data);
+            const response = await axios.post('http://localhost:3001/api/users/login', data);
 
             if (response.status === 200) {
                 setSubmissionStatus('Successfully logged in');
@@ -45,13 +45,13 @@ const Login = () => {
                         <h2 className='mb-4' twixer-logo>TwiXer</h2>
 
                         <Form onSubmit={handleSubmit(onSubmit)}>
-                            <Form.Group controlId='formEmail' className='mb-3'>
+                            <Form.Group controlId='formUsername' className='mb-3'>
                                 <Form.Control
-                                    type='email'
-                                    placeholder='Enter Email Address'
-                                    {...register('email')}
+                                    type='username'
+                                    placeholder='Enter username'
+                                    {...register('username')}
                                 />
-                                {errors.email && <p className="text-danger">{errors.email.message}</p>}
+                                {errors.username && <p className="text-danger">{errors.username.message}</p>}
                             </Form.Group>
 
                             <Form.Group controlId="formPassword" className="mb-3">
