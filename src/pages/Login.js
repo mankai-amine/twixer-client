@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Form, Button, Container, Row, Col } from 'react-bootstrap';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
-import axios from 'axios';
+import Axios from 'axios';
+import { UserContext } from "../helpers/UserContext"
+
 
 
 const loginSchema = Yup.object().shape({
@@ -12,27 +14,45 @@ const loginSchema = Yup.object().shape({
 });
 
 const Login = () => {
-    const [submissionStatus, setSubmissionStatus] = useState(null); // Manage submission status message
 
-    const {
-        register,
-        handleSubmit,
-        formState: { errors }
-    } = useForm({
+    const {register, handleSubmit, formState: { errors }} = useForm({
         resolver: yupResolver(loginSchema),
     });
 
-    const onSubmit = async (data) => {
-        try {
-            const response = await axios.post('http://localhost:3001/api/users/login', data);
+    const { setUser } = useContext(UserContext); 
 
-            if (response.status === 200) {
+    const [submissionStatus, setSubmissionStatus] = useState(null);
+
+    const [serverErrors, setServerErrors] = useState(""); 
+
+    const onSubmit = async (data) => {
+        setServerErrors("");
+
+        try {
+            const response = await Axios.post('http://localhost:3001/api/users/login', {
+                username: data.username,
+                password: data.password
+            });
+
+            if (response.data.accessToken) {
+                sessionStorage.setItem("accessToken", response.data.accessToken);
+                
+                const userResponse = await Axios.get("http://localhost:3001/api/users", {
+                    headers: { accessToken: response.data.accessToken },
+                });
+                setUser(userResponse.data.user); 
+
                 setSubmissionStatus('Successfully logged in');
-                localStorage.setItem('token', response.data.token);
             }
+
         } catch (error) {
-            console.error('Error logging in:', error);
-            setSubmissionStatus('Error occurred');
+            if (error.response) {
+                setServerErrors(error.response.data);
+            } else {
+                console.error('Error logging in:', error);
+                setSubmissionStatus('Error occurred');
+            }
+            
         }
     };
 
@@ -75,6 +95,7 @@ const Login = () => {
                                 </p>
                             </div>
                         </Form>
+                        {serverErrors.error && <div className="alert alert-danger mt-3">{serverErrors.error}</div>}
                     </div>
                 </Col>
             </Row>
