@@ -37,30 +37,10 @@ export const Account = () => {
     useEffect(() => {
         
         if (!user) return;
-        const id = user.id
 
-        console.log(user);
-
-        const accessToken = sessionStorage.getItem("accessToken");
-
-        const fetchUser = async() => {
-            try{
-                const response = await Axios.get(`http://localhost:3001/api/users/${id}`, {
-                    headers: {
-                        accesstoken: accessToken, 
-                    },
-                })
-                const { email, username, bio } = response.data;
-                console.log(email, username,bio);
-                setValue("email", email);
-                setValue("username", username);
-                setValue("bio", bio);
-            } catch(error) {
-                console.error("Error fetching user:", error);
-            } 
-        };
-
-        fetchUser();
+        setValue("email", user.email);
+        setValue("username", user.username);
+        setValue("bio", user.bio);
 
     }, [user, setValue]);
 
