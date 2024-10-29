@@ -1,0 +1,17 @@
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.search-bar {
+    border-radius: 20px;
+    padding: 8px;
+    width: 200px;
+}
+
+.sidebar {
+    background-color: #ffffff;
+    border-right: 1px solid #ddd;
+    height: 100vh;
+    width: 200px;
+}
