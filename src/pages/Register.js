@@ -16,14 +16,14 @@ const registerSchema = Yup.object().shape({
 });
 
 
-const Register: React.FC = () => {
+const Register = () => {
     const [isSubmitted, setIsSubmitted] = useState(false);
 
     const { register, handleSubmit, formState: { errors } } = useForm({
         resolver: yupResolver(registerSchema),
     });
 
-    const onSubmit = (data: any) => {
+    const onSubmit = (data) => {
         console.log('Register data:', data);
         setIsSubmitted(true);
     };
@@ -85,7 +85,6 @@ const Register: React.FC = () => {
                 </Row>
             </Container>
         </div>
-        
     );
 };
 

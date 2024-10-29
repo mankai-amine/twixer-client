@@ -3,7 +3,7 @@ import { Form, Button, Container, Row, Col } from 'react-bootstrap';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
-
+import axios from 'axios';
 
 
 const loginSchema = Yup.object().shape({
@@ -11,8 +11,8 @@ const loginSchema = Yup.object().shape({
     password: Yup.string().required('Password is required'),
 });
 
-const Login: React.FC = () => {
-    const [submissionStatus, setSubmissionStatus] = useState<string | null>(null); // Manage submission status message
+const Login = () => {
+    const [submissionStatus, setSubmissionStatus] = useState(null); // Manage submission status message
 
     const {
         register,
@@ -22,10 +22,18 @@ const Login: React.FC = () => {
         resolver: yupResolver(loginSchema),
     });
 
-    const onSubmit = (data: any) => {
-        // Simulate an API call and update the submission status
-        console.log('Login data:', data);
-        setSubmissionStatus("Successfully logged in!");
+    const onSubmit = async (data) => {
+        try {
+            const response = await axios.post('http://localhost:5000/api/users/login', data);
+
+            if (response.status === 200) {
+                setSubmissionStatus('Successfully logged in');
+                localStorage.setItem('token', response.data.token);
+            }
+        } catch (error) {
+            console.error('Error logging in:', error);
+            setSubmissionStatus('Error occurred');
+        }
     };
 
     return (
