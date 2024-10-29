@@ -3,7 +3,7 @@ import { Form, Button, Container, Row, Col } from 'react-bootstrap';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
-
+import axios from 'axios';
 
 const registerSchema = Yup.object().shape({
     username: Yup.string().required('Username is required'),
@@ -23,9 +23,20 @@ const Register = () => {
         resolver: yupResolver(registerSchema),
     });
 
-    const onSubmit = (data) => {
-        console.log('Register data:', data);
-        setIsSubmitted(true);
+    const onSubmit = async (data) => {
+        try {
+            const response = await axios.post('http://localhost:5000/api/users', data);
+    
+            if (response.status === 201) {
+                setIsSubmitted(true);
+            } else {
+                setIsSubmitted(false);
+                alert("Registration failed. Please try again.");
+            }
+        } catch (error) {
+            console.error('Registration error:', error);
+            alert(error.response?.data.error || "An error occurred during registration. Please try again.");
+        }
     };
 
     return (
