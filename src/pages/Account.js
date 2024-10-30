@@ -7,6 +7,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { UserContext } from "../helpers/UserContext";
 import FlashMessage from "../helpers/FlashMessage";
 import { Link } from 'react-router-dom';
+import { Upload } from '../helpers/Upload';
 
 // Define the form schema with Yup
 const schema = Yup.object().shape({
@@ -113,8 +114,11 @@ export const Account = () => {
                     {errors.bio && <div className="invalid-feedback">{errors.bio.message}</div>}
                 </div>
 
-                <button type="submit" className="btn btn-primary">Update</button>
-                <Link to="/password" className="btn btn-secondary ms-2">Change Password</Link>
+                <Upload/>
+                <div className='mt-4'>
+                    <button type="submit" className="btn btn-primary">Update</button>
+                    <Link to="/password" className="btn btn-secondary ms-2">Change Password</Link>
+                </div>
             </form>
         </div>
     );
