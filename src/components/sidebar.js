@@ -1,15 +1,31 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Button, Nav } from 'react-bootstrap';
 import '../components.css';
+import { UserContext } from "../helpers/UserContext";
+import { useNavigate } from 'react-router-dom';
 
 const Sidebar = () => {
+    const { setUser } = useContext(UserContext); // Access setUser from context
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        sessionStorage.removeItem("accessToken"); // Remove access token
+        setUser(null); // Clear user context
+        navigate("/login"); // Redirect to login page
+    };
+
     return (
-        <Nav className='flex-column sidebar p-3'>
-            <Button variant="outline-secondary" className="mb-3">Profile</Button>
-            <Button variant="outline-secondary" className="mb-3">Home</Button>
-            <Button variant="outline-secondary" className="mb-3">Following</Button>
-            <Button variant="outline-secondary" className="mb-3">Upgrade</Button>
-        </Nav>
+        <div className="d-flex flex-column sidebar p-3" style={{ height: '100vh' }}>
+            <Nav className='flex-column mb-auto' style={{ overflowY: 'auto' }}>
+                <Button variant="outline-secondary" className="mb-3">Profile</Button>
+                <Button variant="outline-secondary" className="mb-3">Home</Button>
+                <Button variant="outline-secondary" className="mb-3">Following</Button>
+                <Button variant="outline-secondary" className="mb-3">Upgrade</Button>
+            </Nav>
+            <Button variant="outline-danger" className="mt-3" onClick={handleLogout}>
+                Logout
+            </Button>
+        </div>
     );
 };
 
