@@ -1,15 +1,15 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import Axios from "axios";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { UserContext } from "../helpers/UserContext";
 import FlashMessage from "../helpers/FlashMessage";
 
 // Define the form schema with Yup
 const schema = Yup.object().shape({
-    password: Yup.string()
+    currentPassword: Yup.string()
         .min(6, "Password must be at least 6 characters")
         .max(64, "Password must be less or equal than 64 characters")
         .required("Password is required"),
@@ -18,14 +18,14 @@ const schema = Yup.object().shape({
         .max(64, "Password must be less or equal than 64 characters")
         .required("Password is required"),
     confirmPassword: Yup.string()
-        .oneOf([Yup.ref('password'), null], "Passwords must match")
+        .oneOf([Yup.ref('newPassword'), null], "Passwords must match")
         .required("Password is required"),
 });
 
 export const Password = () => {
-    const { id } = useParams();
     const navigate = useNavigate();
     const { user } = useContext(UserContext);
+
     const [flashMessage, setFlashMessage] = useState(null);
 
     const { register, handleSubmit, formState: { errors } } = useForm({
@@ -34,28 +34,27 @@ export const Password = () => {
 
     const onSubmit = (data) => {
         const accessToken = sessionStorage.getItem("accessToken");
+        console.log(user);
+        const id = user.id
 
-        Axios.put(`http://localhost:3001/api/todos/${id}`, {
-            email: data.email,
-            password: data.password,
-            username: data.username,
-            bio: data.bio,
-            ownerId: user.id,
+        Axios.put(`http://localhost:3001/api/users/password/${id}`, {
+            password: data.currentPassword,
+            newPassword: data.newPassword
         }, {
             headers: {
                 accessToken: accessToken,
             },
         })
         .then(() => {
-            setFlashMessage({ message: "Todo updated successfully", type: "success" });
+            setFlashMessage({ message: "Password updated successfully", type: "success" });
             setTimeout(() => {
                 setFlashMessage(null);
                 navigate("/"); 
             }, 2000);
         })
         .catch((error) => {
-            setFlashMessage({ message: "Error updating todo", type: "danger" });
-            console.error("Error updating the todo:", error);
+            setFlashMessage({ message: "Error changing password", type: "danger" });
+            console.error("Error updating the password:", error);
         });
     };
 
