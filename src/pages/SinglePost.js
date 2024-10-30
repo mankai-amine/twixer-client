@@ -8,9 +8,10 @@ const apiUrl = `${process.env.REACT_APP_API_URL}/posts`;
 
 export const SinglePost = () => {
     const { id } = useParams();
+    console.log(id);
 
     const {data: postData, isPending, isError } = useQuery({
-        queryKey: ["single post"],
+        queryKey: ["single post", id],
         queryFn: async () => {
             return Axios.get(`${apiUrl}/${id}`).then((res) => res.data);
         }
