@@ -6,7 +6,7 @@ import * as Yup from 'yup';
 import Axios from 'axios';
 import { UserContext } from "../helpers/UserContext"
 
-
+const apiUrl = `${process.env.REACT_APP_API_URL}/users`;
 
 const loginSchema = Yup.object().shape({
     username: Yup.string().required('Username is required'),
@@ -29,7 +29,7 @@ const Login = () => {
         setServerErrors("");
 
         try {
-            const response = await Axios.post('http://localhost:3001/api/users/login', {
+            const response = await Axios.post(`${apiUrl}/login`, {
                 username: data.username,
                 password: data.password
             });
@@ -37,7 +37,7 @@ const Login = () => {
             if (response.data.accessToken) {
                 sessionStorage.setItem("accessToken", response.data.accessToken);
                 
-                const userResponse = await Axios.get("http://localhost:3001/api/users", {
+                const userResponse = await Axios.get(apiUrl, {
                     headers: { accessToken: response.data.accessToken },
                 });
                 setUser(userResponse.data.user); 
