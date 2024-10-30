@@ -75,9 +75,6 @@ export const Profile = () => {
         
     }, [id]);
 
-    console.log('Followers:', followers);
-    console.log('Following:', following);
-
 
     return (
         <div className="container mt-5">
@@ -95,7 +92,7 @@ export const Profile = () => {
                                         alt="Profile"
                                     />
                                     <div>
-                                        <h3 className="mb-0">{username}</h3>
+                                        <h3 className="mb-2" style={{ color: 'black'}}>{username}</h3>
                                         <p className="text-muted mb-0">{bio}</p>
                                     </div>
                                 </div>
