@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Container, Card } from 'react-bootstrap';
+import { Link } from "react-router-dom";
+
 
 const Feed = () => {
     const [posts, setPosts] = useState([]);
@@ -10,9 +12,16 @@ const Feed = () => {
     const apiUrl = `${process.env.REACT_APP_API_URL}/posts/generalFeed`;
 
     const fetchPosts = useCallback(async () => {
+        const accessToken = sessionStorage.getItem("accessToken");
+
         try {
-            const response = await axios.get(`${apiUrl}?page=${page}&limit=10`);
-            console.log("Fetched posts:", response.data);  // Log to confirm data
+            const response = await axios.get(`${apiUrl}?page=${page}&limit=10`,
+                {
+                    headers: {
+                        accessToken: accessToken,
+                    },
+            });
+            console.log("Fetched posts:", response.data);  
             const newPosts = response.data;
 
             if (newPosts.length === 0) {
@@ -31,8 +40,7 @@ const Feed = () => {
     }, [fetchPosts]);
 
     return (
-        <Container className='mt-5'>
-            <h2 className='text-center mb-4'>Feed</h2>
+        <Container className='mt-4'>
             <InfiniteScroll
                 dataLength={posts.length}
                 next={fetchPosts}
@@ -41,18 +49,29 @@ const Feed = () => {
                 endMessage={<p className='text-center'>No more posts to show</p>}
             >
                 {posts.map((post, index) => (
-                    <Card key={post.id || index} className='mb-3'>
-                    <Card.Body>
-                        <Card.Title>{post.username}</Card.Title> 
-                        <Card.Text>{post.content}</Card.Text> 
-                        {post.likeCount && (<div>Likes: {post.likeCount}</div>)}
-                        <Card.Footer className='text-muted'>
-                            Posted on {new Date(post.date).toLocaleString()}
-                        </Card.Footer>
-                    </Card.Body>
-                </Card>
-                
+                    <Link to={`/post/${post.id}`} key={post.id || index}  className="text-decoration-none text-reset">
+                        <Card  className='mb-3'>
+                            <Card.Body>
+                                <Card.Title>{post.poster.username}</Card.Title>
+                                <Card.Text>{post.content}</Card.Text>
+                                <div className="d-flex text-muted">
+                                    <div className="me-3">
+                                        <i className="bi bi-heart-fill me-1"></i>
+                                        {post.likeCount} Likes
+                                    </div>
+                                    <div>
+                                        <i className="bi bi-chat-fill me-1"></i>
+                                        {post.replies.length} Replies
+                                    </div>
+                                </div>
+                            </Card.Body>
+                            <Card.Footer className='text-muted'>
+                                Posted on {new Date(post.date).toLocaleString()}
+                            </Card.Footer>
+                        </Card>
+                    </Link>
                 ))}
+
             </InfiniteScroll>
         </Container>
     );

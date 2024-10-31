@@ -19,14 +19,14 @@ const Sidebar = () => {
     }
 
     return (
-        <div className="d-flex flex-column sidebar p-3" style={{ height: '100vh' }}>
-            <Nav className='flex-column mb-auto' style={{ overflowY: 'auto' }}>
+        <div className="d-flex flex-column sidebar p-3 mt-4" style={{ height: '100vh' }}>
+            <Nav className='flex-column mb-3' style={{ overflowY: 'auto' }}>
                 <Button variant="outline-secondary" className="mb-3" onClick={handleProfile}>Profile</Button>
                 <Button variant="outline-secondary" className="mb-3">Home</Button>
                 <Button variant="outline-secondary" className="mb-3">Following</Button>
                 <Button variant="outline-secondary" className="mb-3">Upgrade</Button>
             </Nav>
-            <Button variant="outline-danger" className="mt-3" onClick={handleLogout}>
+            <Button variant="outline-danger" className="mt-5" onClick={handleLogout}>
                 Logout
             </Button>
         </div>
