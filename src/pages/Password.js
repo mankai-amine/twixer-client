@@ -37,7 +37,7 @@ export const Password = () => {
         console.log(user);
         const id = user.id
 
-        Axios.put(`process.env.REACT_APP_API_URL/users/password/${id}`, {
+        Axios.put(`${process.env.REACT_APP_API_URL}/users/password/${id}`, {
             password: data.currentPassword,
             newPassword: data.newPassword
         }, {
