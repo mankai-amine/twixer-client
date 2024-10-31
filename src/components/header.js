@@ -1,8 +1,8 @@
 import React from 'react';
 import { Navbar, Form, FormControl } from 'react-bootstrap';
-import './components.css';
+import '../components.css';
 
-const Header: React.FC = () => {
+const Header = () => {
     return (
         <Navbar bg='primary' variant='dark' className='justify-content-between p-3'>
             <Navbar.Brand className='logo'>
