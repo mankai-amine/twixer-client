@@ -2,6 +2,7 @@ import React from 'react';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import MainFeedLayout from './pages/MainFeedLayout';
+import FollowFeedLayout from './pages/FollowFeedLayout';
 import AdminUserList from './pages/AdminUserList';
 import { Account } from './pages/Account'
 import { SinglePost } from './pages/SinglePost';
@@ -35,6 +36,7 @@ function App() {
             <Route path='/profile' element={<Profile />} />
             <Route path='/post/:id' element={<SinglePost />} />
             <Route path='/' element={<ProtectedRoute element={MainFeedLayout} />} />
+            <Route path='/following' element={<ProtectedRoute element={FollowFeedLayout} />} />
             <Route path='/admin/users' element={<ProtectedRoute element={AdminUserList}/>} />
           </Routes>
           </QueryClientProvider>
