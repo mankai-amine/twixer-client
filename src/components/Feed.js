@@ -3,6 +3,7 @@ import axios from 'axios';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Container, Card } from 'react-bootstrap';
 import { Link } from "react-router-dom";
+import '../components.css';
 
 
 const Feed = () => {
@@ -52,8 +53,13 @@ const Feed = () => {
                     <Link to={`/post/${post.id}`} key={post.id || index}  className="text-decoration-none text-reset">
                         <Card  className='mb-3'>
                             <Card.Body>
-                                <Card.Title>{post.poster.username}</Card.Title>
-                                <Card.Text>{post.content}</Card.Text>
+                                <Link to={`/profile/${post.poster.username}`} className='text-decoration-none text-reset username-link'>
+                                    <Card.Title>{post.poster.username}</Card.Title>
+                                </Link>
+                                
+                                <Card.Text>
+                                    {post.content}
+                                </Card.Text>
                                 <div className="d-flex text-muted">
                                     <div className="me-3">
                                         <i className="bi bi-heart-fill me-1"></i>

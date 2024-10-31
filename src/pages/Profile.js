@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { Button  } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import Axios from "axios";
 import Header from '../components/header';
 
 
 export const Profile = () => {
+    const { username } = useParams();
 
     const accessToken = sessionStorage.getItem("accessToken");
 
@@ -15,9 +16,6 @@ export const Profile = () => {
     const [followers, setFollowers] = useState();
     const [following, setFollowing] = useState();
     const [posts, setPosts] = useState([]);
-
-
-    const username = "amineM";
 
     useEffect( ()=> {
         Axios.get(`${apiUrl}/users/username/${username}`)
