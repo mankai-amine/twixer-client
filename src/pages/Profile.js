@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Button  } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import Axios from "axios";
-import Header from '../components/header';
 
 
 export const Profile = () => {
@@ -80,13 +79,10 @@ export const Profile = () => {
 
 
     return (
-        <div>
-        {<Header />}
         <div className="container mt-5">
-
             <div className="row justify-content-center">
                 <div className="col-md-8">
-
+                    {/* Header */}
                     <div className="card mb-4 shadow-sm">
                         <div className="card-body">
                             <div className="d-flex align-items-center justify-content-between mb-3">
@@ -146,7 +142,6 @@ export const Profile = () => {
                     ))}
                 </div>
             </div>
-        </div>
         </div>
     );
 };

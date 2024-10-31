@@ -4,8 +4,7 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 import Axios from 'axios';
-import { UserContext } from "../helpers/UserContext";
-import { useNavigate } from 'react-router-dom';
+import { UserContext } from "../helpers/UserContext"
 
 const apiUrl = `${process.env.REACT_APP_API_URL}/users`;
 
@@ -26,8 +25,6 @@ const Login = () => {
 
     const [serverErrors, setServerErrors] = useState(""); 
 
-    const navigate = useNavigate();
-
     const onSubmit = async (data) => {
         setServerErrors("");
 
@@ -43,16 +40,9 @@ const Login = () => {
                 const userResponse = await Axios.get(apiUrl, {
                     headers: { accessToken: response.data.accessToken },
                 });
-                const user = userResponse.data.user;
-                setUser(user); 
+                setUser(userResponse.data.user); 
 
                 setSubmissionStatus('Successfully logged in');
-                
-                if (user.role === 'admin') {
-                    navigate('/admin/users');
-                } else {
-                    navigate('/');
-                }
             }
 
         } catch (error) {
