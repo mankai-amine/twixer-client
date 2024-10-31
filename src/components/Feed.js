@@ -7,11 +7,12 @@ const Feed = () => {
     const [posts, setPosts] = useState([]);
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
-    const apiUrl = `${process.env.REACT_APP_API_URL}/posts/feed`;
+    const apiUrl = `${process.env.REACT_APP_API_URL}/posts/generalFeed`;
 
     const fetchPosts = useCallback(async () => {
         try {
             const response = await axios.get(`${apiUrl}?page=${page}&limit=10`);
+            console.log("Fetched posts:", response.data);  // Log to confirm data
             const newPosts = response.data;
 
             if (newPosts.length === 0) {
@@ -42,11 +43,11 @@ const Feed = () => {
                 {posts.map((post, index) => (
                     <Card key={post.id || index} className='mb-3'>
                     <Card.Body>
-                        <Card.Title>{post.username}</Card.Title> {/* Display the username */}
-                        <Card.Text>{post.content}</Card.Text> {/* Display the content */}
+                        <Card.Title>{post.username}</Card.Title> 
+                        <Card.Text>{post.content}</Card.Text> 
                         {post.likeCount && (<div>Likes: {post.likeCount}</div>)}
                         <Card.Footer className='text-muted'>
-                            Posted on {new Date(post.date).toLocaleString()} {/* Map date to display the post's time */}
+                            Posted on {new Date(post.date).toLocaleString()}
                         </Card.Footer>
                     </Card.Body>
                 </Card>

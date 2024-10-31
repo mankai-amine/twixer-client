@@ -43,10 +43,16 @@ const Login = () => {
                 const userResponse = await Axios.get(apiUrl, {
                     headers: { accessToken: response.data.accessToken },
                 });
-                setUser(userResponse.data.user); 
+                const user = userResponse.data.user;
+                setUser(user); 
 
                 setSubmissionStatus('Successfully logged in');
-                navigate('/');
+                
+                if (user.role === 'admin') {
+                    navigate('/admin/users');
+                } else {
+                    navigate('/');
+                }
             }
 
         } catch (error) {
