@@ -1,11 +1,13 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { useForm } from "react-hook-form";
+import { setValue, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import Axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { UserContext } from "../helpers/UserContext";
 import FlashMessage from "../helpers/FlashMessage";
+import { Link } from 'react-router-dom';
+import { Upload } from '../helpers/Upload';
 
 // Define the form schema with Yup
 const schema = Yup.object().shape({
@@ -13,19 +15,21 @@ const schema = Yup.object().shape({
       .email("Invalid email")
       .required("Email is required"),
     username: Yup.string()
-      .min(6, "Username must be at least 6 characters")
-      .max(64, "Username must be less or equal than 64 characters")
+      .min(2, "Username must be at least 2 characters")
+      .max(50, "Username must be less or equal than 50 characters")
       .required("Username is required"),
     bio: Yup.string()
-      .min(6, "Bio must be at least 6 characters")
-      .max(64, "Bio must be less or equal than 64 characters")
+      .min(10, "Bio must be at least 6 characters")
+      .max(160, "Bio must be less or equal than 64 characters")
       .required("Bio is required"),
 });
 
 export const Account = () => {
-    const { id } = useParams();
+    
     const navigate = useNavigate();
+
     const { user } = useContext(UserContext);
+    
     const [flashMessage, setFlashMessage] = useState(null);
 
     const { register, handleSubmit, setValue, formState: { errors } } = useForm({
@@ -33,39 +37,30 @@ export const Account = () => {
     });
 
     useEffect(() => {
-        const accessToken = sessionStorage.getItem("accessToken");
+        
+        if (!user) return;
 
-        Axios.get(`http://localhost:3001/api/users/${id}`, {
-            headers: {
-                accesstoken: accessToken, 
-            },
-        })
-        .then((response) => {
-            const { email, username, bio } = response.data;
-            setValue("email", email);
-            setValue("username", username);
-            setValue("bio", bio);
-        })
-        .catch((error) => {
-            console.error("Error fetching user:", error);
-        });
-    }, [id]);
+        setValue("email", user.email);
+        setValue("username", user.username);
+        setValue("bio", user.bio);
+
+    }, [user, setValue]);
 
     const onSubmit = (data) => {
         const accessToken = sessionStorage.getItem("accessToken");
+        const id = user.id
 
-        Axios.put(`http://localhost:3001/api/todos/${id}`, {
+        Axios.put(`http://localhost:3001/api/users/update/${id}`, {
             email: data.email,
             username: data.username,
             bio: data.bio,
-            ownerId: user.id,
         }, {
             headers: {
                 accessToken: accessToken,
             },
         })
         .then(() => {
-            setFlashMessage({ message: "Todo updated successfully", type: "success" });
+            setFlashMessage({ message: "User updated successfully", type: "success" });
             setTimeout(() => {
                 setFlashMessage(null);
                 navigate("/"); 
@@ -73,10 +68,11 @@ export const Account = () => {
         })
         .catch((error) => {
             setFlashMessage({ message: "Error updating user", type: "danger" });
-            console.error("Error updating the todo:", error);
+            console.error("Error updating the user:", error);
         });
     };
 
+    
     return (
         <div className="container mt-5 col-md-8">
             {flashMessage && (
@@ -118,7 +114,11 @@ export const Account = () => {
                     {errors.bio && <div className="invalid-feedback">{errors.bio.message}</div>}
                 </div>
 
-                <button type="submit" className="btn btn-primary">Update</button>
+                <Upload/>
+                <div className='mt-4'>
+                    <button type="submit" className="btn btn-primary">Update</button>
+                    <Link to="/password" className="btn btn-secondary ms-2">Change Password</Link>
+                </div>
             </form>
         </div>
     );
