@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
+import { UserContext } from "../helpers/UserContext";
 import { Button  } from "react-bootstrap";
 import { Link, useParams } from "react-router-dom";
 import Axios from "axios";
@@ -7,12 +8,27 @@ import Header from '../components/header';
 
 export const Profile = () => {
     const { username } = useParams();
+    const { user } = useContext(UserContext); 
+    const [currUsername, setCurrUsername] = useState("");
+    const [isFollowing, setIsFollowing] = useState(false);
+
+
+    useEffect(() => {
+        if (!user) return;
+        setCurrUsername(user.username);
+    }, [user]);
+
+    const isSameUsername = (username === currUsername);
+
+    //console.log(currUsername);
+    //console.log(username);
+    //console.log(isSameUsername);
 
     const accessToken = sessionStorage.getItem("accessToken");
 
     const apiUrl = process.env.REACT_APP_API_URL;
 
-    const [user, setUser] = useState({});
+    const [profileOwner, setProfileOwner] = useState({});
     const [followers, setFollowers] = useState();
     const [following, setFollowing] = useState();
     const [posts, setPosts] = useState([]);
@@ -20,14 +36,14 @@ export const Profile = () => {
     useEffect( ()=> {
         Axios.get(`${apiUrl}/users/username/${username}`)
         .then( (response) => {
-            setUser(response.data)
+            setProfileOwner(response.data)
         })
         .catch((error)=> {
             console.error("Error fetching user:", error)
         })
     }, [])
 
-    const {id, bio, profile_pic} = user;
+    const {id, bio, profile_pic} = profileOwner;
 
     useEffect(() => {
         if(id){
@@ -46,7 +62,7 @@ export const Profile = () => {
         
     }, [id]);
 
-    console.log(posts);
+    //console.log(posts);
 
     const followeeId = id;
     useEffect(() => {
@@ -61,6 +77,7 @@ export const Profile = () => {
         }
         
     }, [id]);
+
 
     const followerId = id;
     useEffect(() => {
@@ -77,6 +94,57 @@ export const Profile = () => {
     }, [id]);
 
 
+    useEffect(() => {
+        if(id){
+            Axios.get(`${apiUrl}/follows/isFollowing/${followeeId}`, {
+                headers: {
+                    accessToken: accessToken,
+                },
+            })
+            .then((response) => {
+                setIsFollowing(response.data.isFollowing);
+            })
+            .catch((error) => {
+                console.error("Error fetching following:", error);
+            });
+        }
+        
+    }, [id]);
+
+
+    const handleFollow = () =>{
+        Axios.post(`${apiUrl}/follows/${followeeId}`, {}, {
+            headers: {
+                accessToken: accessToken,
+            },
+        })
+        .then(() => {
+            setIsFollowing(true);
+        })
+        .catch((error) => {
+            console.error("Error handling follow:", error);
+        });
+    }
+
+    const handleUnfollow = () =>{
+        Axios.delete(`${apiUrl}/follows/${followeeId}`, {
+            headers: {
+                accessToken: accessToken,
+            },
+        })
+            .then(() => {
+                setIsFollowing(false);
+            })
+            .catch((error) => {
+                console.error("Error handling unfollow", error);
+        });
+    }
+
+    if (!user) {
+        return <div>Loading...</div>; 
+    }
+
+    
     return (
         <div>
         {<Header />}
@@ -100,9 +168,14 @@ export const Profile = () => {
                                         <p className="text-muted mb-0">{bio}</p>
                                     </div>
                                 </div>
+                                {isSameUsername && (
                                 <Link to="/account">
                                     <Button variant="primary">Edit Profile</Button>
-                                </Link>
+                                </Link>)}
+                                {!isSameUsername && isFollowing && (
+                                <Button variant="primary" onClick={handleUnfollow}>Unfollow</Button>)}
+                                {!isSameUsername && !isFollowing && (
+                                <Button variant="primary" onClick={handleFollow}>Follow</Button>)}
                             </div>
                             
                             {/* Stats */}
