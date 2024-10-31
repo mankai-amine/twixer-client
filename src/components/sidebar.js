@@ -14,10 +14,14 @@ const Sidebar = () => {
         navigate("/login"); // Redirect to login page
     };
 
+    const handleProfile =() => {
+        navigate("/profile");
+    }
+
     return (
         <div className="d-flex flex-column sidebar p-3" style={{ height: '100vh' }}>
             <Nav className='flex-column mb-auto' style={{ overflowY: 'auto' }}>
-                <Button variant="outline-secondary" className="mb-3">Profile</Button>
+                <Button variant="outline-secondary" className="mb-3" onClick={handleProfile}>Profile</Button>
                 <Button variant="outline-secondary" className="mb-3">Home</Button>
                 <Button variant="outline-secondary" className="mb-3">Following</Button>
                 <Button variant="outline-secondary" className="mb-3">Upgrade</Button>
