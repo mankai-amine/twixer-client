@@ -123,27 +123,29 @@ export const Profile = () => {
     
                     {/* Posts */}
                     {posts.map((post) => (
-                        <div key={post.id} className="card mb-3 shadow-sm">
-                            <div className="card-body">
-                                <div className="d-flex align-items-center mb-2">
-                                    <h5 className="card-title mb-0">
-                                        {post.poster.username}
-                                    </h5>
-                                </div>
-                                <p className="card-text">{post.content}</p>
-                                <div className="d-flex text-muted">
-                                    <div className="me-3">
-                                        <i className="bi bi-heart-fill me-1"></i>
-                                        {post.likeCount} Likes
+                        <Link to={`/post/${post.id}`} key={post.id} className="text-decoration-none text-reset">
+                            <div className="card mb-3 shadow-sm">
+                                <div className="card-body">
+                                    <div className="d-flex align-items-center mb-2">
+                                        <h5 className="card-title mb-0">
+                                            {post.poster.username}
+                                        </h5>
                                     </div>
-                                    <div>
-                                        <i className="bi bi-chat-fill me-1"></i>
-                                        {post.replies.length} Replies
+                                    <p className="card-text">{post.content}</p>
+                                    <div className="d-flex text-muted">
+                                        <div className="me-3">
+                                            <i className="bi bi-heart-fill me-1"></i>
+                                            {post.likeCount} Likes
+                                        </div>
+                                        <div>
+                                            <i className="bi bi-chat-fill me-1"></i>
+                                            {post.replies.length} Replies
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
+                        </Link>
+                    ))} 
                 </div>
             </div>
         </div>

@@ -5,11 +5,11 @@ import { Container, Card } from 'react-bootstrap';
 import { Link } from "react-router-dom";
 
 
-const Feed = () => {
+const FollowFeed = () => {
     const [posts, setPosts] = useState([]);
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
-    const apiUrl = `${process.env.REACT_APP_API_URL}/posts/generalFeed`;
+    const apiUrl = `${process.env.REACT_APP_API_URL}/posts/followFeed`;
 
     const fetchPosts = useCallback(async () => {
         const accessToken = sessionStorage.getItem("accessToken");
@@ -77,4 +77,4 @@ const Feed = () => {
     );
 };
 
-export default Feed;
+export default FollowFeed;
