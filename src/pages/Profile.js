@@ -8,6 +8,8 @@ export const Profile = () => {
 
     const accessToken = sessionStorage.getItem("accessToken");
 
+    const apiUrl = process.env.REACT_APP_API_URL;
+
     const [user, setUser] = useState({});
     const [followers, setFollowers] = useState();
     const [following, setFollowing] = useState();
@@ -17,7 +19,7 @@ export const Profile = () => {
     const username = "amineM";
 
     useEffect( ()=> {
-        Axios.get(`http://localhost:3001/api/users/username/${username}`)
+        Axios.get(`${apiUrl}/users/username/${username}`)
         .then( (response) => {
             setUser(response.data)
         })
@@ -30,7 +32,7 @@ export const Profile = () => {
 
     useEffect(() => {
         if(id){
-            Axios.get(`http://localhost:3001/api/posts/profilePage/${id}`, {
+            Axios.get(`${apiUrl}/posts/profilePage/${id}`, {
                 headers: {
                     accessToken: accessToken,
                 },
@@ -50,7 +52,7 @@ export const Profile = () => {
     const followeeId = id;
     useEffect(() => {
         if(id){
-            Axios.get(`http://localhost:3001/api/follows/followers/${followeeId}`)
+            Axios.get(`${apiUrl}/follows/followers/${followeeId}`)
             .then((response) => {
                 setFollowers(response.data.length);
             })
@@ -64,7 +66,7 @@ export const Profile = () => {
     const followerId = id;
     useEffect(() => {
         if(id){
-            Axios.get(`http://localhost:3001/api/follows/following/${followerId}`)
+            Axios.get(`${apiUrl}/follows/following/${followerId}`)
             .then((response) => {
                 setFollowing(response.data.length);
             })

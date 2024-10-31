@@ -11,7 +11,7 @@ export const UserProvider = ({ children }) => {
             const accessToken = sessionStorage.getItem("accessToken");
             if (accessToken) {
                 try {
-                    const response = await Axios.get("http://localhost:3001/api/users", {
+                    const response = await Axios.get(`${process.env.REACT_APP_API_URL}/users`, {
                         headers: { accessToken }
                     });
                     setUser(response.data.user);

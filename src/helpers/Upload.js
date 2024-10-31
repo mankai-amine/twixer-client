@@ -27,7 +27,7 @@ export const Upload = () => {
         setMessage(null);
 
         // Get the presigned URL from the backend
-        const response = await Axios.post('http://localhost:3001/api/uploads/presignedUrl', {
+        const response = await Axios.post('process.env.REACT_APP_API_URL/uploads/presignedUrl', {
         fileName: selectedFile.name,
         fileType: selectedFile.type,
         }, {
@@ -46,7 +46,7 @@ export const Upload = () => {
         });
 
         // Send fileKey to backend to update user profile
-        await Axios.post('http://localhost:3001/api/uploads/uploadImage', {
+        await Axios.post('process.env.REACT_APP_API_URL/uploads/uploadImage', {
         fileKey: fileKey,
         }, {
         headers: {

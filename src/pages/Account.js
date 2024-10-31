@@ -50,7 +50,7 @@ export const Account = () => {
         const accessToken = sessionStorage.getItem("accessToken");
         const id = user.id
 
-        Axios.put(`http://localhost:3001/api/users/update/${id}`, {
+        Axios.put(`process.env.REACT_APP_API_URL/users/update/${id}`, {
             email: data.email,
             username: data.username,
             bio: data.bio,
