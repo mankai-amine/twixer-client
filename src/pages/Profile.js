@@ -1,10 +1,11 @@
 import { useEffect, useState, useContext } from "react";
 import { UserContext } from "../helpers/UserContext";
-import { Button  } from "react-bootstrap";
+import { Button, Container, Row, Col, Card } from "react-bootstrap";
 import { Link, useParams } from "react-router-dom";
 import Axios from "axios";
 import Header from '../components/header';
 import { DropdownDelete } from "../components/DropDownDelete";
+import Sidebar from '../components/sidebar';
 
 
 export const Profile = () => {
@@ -160,57 +161,60 @@ export const Profile = () => {
 
     
     return (
-        <div>
+        <div style={{ backgroundColor: 'white', minHeight: '100vh', margin: '0', padding: '0' }}>
         {<Header />}
-        <div className="container mt-5">
-
-            <div className="row justify-content-center">
-                <div className="col-md-8">
-
-                    <div className="card mb-4 shadow-sm">
-                        <div className="card-body">
-                            <div className="d-flex align-items-center justify-content-between mb-3">
-                                <div className="d-flex align-items-center">
-                                    <img 
-                                        src={profile_pic} 
-                                        className="rounded-circle me-3"
-                                        style={{ width: '100px', height: '100px', objectFit: 'cover' }}
-                                        alt="Profile"
-                                    />
+        <div className="d-flex" style={{ marginTop: '0', paddingTop: '0' }}>
+            <Sidebar style={{ margin: '0', padding: '0', height: '100vh', position: 'sticky', top: '0' }} />  
+            <Container className="mt-5">
+                <Row className="justify-content-center">
+                    <Col md={8}>
+                        <Card className="mb-4 shadow-sm" style={{ backgroundColor: 'white' }}>
+                            <Card.Body>
+                                <div className="d-flex align-items-center justify-content-between mb-3">
+                                    <div className="d-flex align-items-center">
+                                        <img 
+                                            src={profile_pic} 
+                                            className="rounded-circle me-3"
+                                            style={{ width: '100px', height: '100px', objectFit: 'cover' }}
+                                            alt="Profile"
+                                        />
+                                        <div>
+                                            <h3 className="mb-2" style={{ color: 'black'}}>{username}</h3>
+                                            <p className="text-muted mb-0">{bio}</p>
+                                        </div>
+                                    </div>
+                                    {isSameUsername && (
+                                        <Link to="/account">
+                                            <Button variant="primary">Edit Profile</Button>
+                                        </Link>
+                                    )}
+                                    {!isSameUsername && isFollowing && (
+                                        <Button variant="primary" onClick={handleUnfollow}>Unfollow</Button>
+                                    )}
+                                    {!isSameUsername && !isFollowing && (
+                                        <Button variant="primary" onClick={handleFollow}>Follow</Button>
+                                    )}
+                                </div>
+                                
+                                {/* Stats */}
+                                <div className="d-flex justify-content-start mt-3">
+                                    <div className="me-4">
+                                        <span style={{ color: 'black'}}>{followers}</span>
+                                        <span className="text-muted ms-1">Followers</span>
+                                    </div>
                                     <div>
-                                        <h3 className="mb-2" style={{ color: 'black'}}>{username}</h3>
-                                        <p className="text-muted mb-0">{bio}</p>
+                                        <span style={{ color: 'black'}}>{following}</span>
+                                        <span className="text-muted ms-1">Following</span>
                                     </div>
                                 </div>
-                                {isSameUsername && (
-                                <Link to="/account">
-                                    <Button variant="primary">Edit Profile</Button>
-                                </Link>)}
-                                {!isSameUsername && isFollowing && (
-                                <Button variant="primary" onClick={handleUnfollow}>Unfollow</Button>)}
-                                {!isSameUsername && !isFollowing && (
-                                <Button variant="primary" onClick={handleFollow}>Follow</Button>)}
-                            </div>
-                            
-                            {/* Stats */}
-                            <div className="d-flex justify-content-start mt-3">
-                                <div className="me-4">
-                                    <span style={{ color: 'black'}}>{followers}</span>
-                                    <span className="text-muted ms-1">Followers</span>
-                                </div>
-                                <div>
-                                    <span style={{ color: 'black'}}>{following}</span>
-                                    <span className="text-muted ms-1">Following</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                            </Card.Body>
+                        </Card>
     
-                    {/* Posts */}
-                    {posts.map((post) => (
-                            <div className="card mb-3 shadow-sm">
-                                <div className="card-body">
-                                    <div className="d-flex align-items-center justify-content-between  mb-2">
+                        {/* Posts */}
+                        {posts.map((post) => (
+                            <Card key={post.id} className="mb-3 shadow-sm" style={{ backgroundColor: '#EFEFEF' }}>
+                                <Card.Body>
+                                    <div className="d-flex align-items-center justify-content-between mb-2">
                                         <h5 className="card-title mb-0">
                                             {post.poster.username}
                                         </h5>
@@ -234,14 +238,14 @@ export const Profile = () => {
                                             </div>
                                         </div>
                                     </Link>
-                                </div>
-                            </div>
-                        
-                    ))} 
-                </div>
-            </div>
+                                </Card.Body>
+                            </Card>
+                        ))} 
+                    </Col>
+                </Row>
+            </Container>
         </div>
-        </div>
+    </div>
     );
 };
 
