@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery } from "@tanstack/react-query";
 import Axios from 'axios';
 import { useParams, Link } from 'react-router-dom';
@@ -18,6 +18,8 @@ export const SinglePost = () => {
 
     const accessToken = sessionStorage.getItem("accessToken");
 
+    const postId = id;
+
     const { data: postData, isPending, isError } = useQuery({
         queryKey: ["single post", id],
         queryFn: async () => {
@@ -25,32 +27,65 @@ export const SinglePost = () => {
         }
     });
 
+    useEffect(() => {
+        if (postData && likeCount === 0) {
+            setLikeCount(postData.likeCount || 0); // Initialize likeCount from postData
+        }
+    }, [postData, likeCount]);
+
+    useEffect(() => {
+        Axios.get(`${apiUrl}/likes/isLiked/${postId}`, {
+            headers: {
+                accessToken: accessToken, 
+            },
+        })
+        .then((response) => {
+            setLiked(response.data.isPostLiked) ;
+        })
+        .catch((error) => {
+            console.error("Error get isLiked:", error);
+        });
+    }, []);
+
+    console.log(liked);
+
+    
     const handleLike = () => {
         // Toggle the liked state
         const newLikedState = !liked;
         setLiked(newLikedState);
+
+        if(newLikedState){
+            Axios.post(`${apiUrl}/likes/${postId}`, null, {
+                headers: {
+                    accessToken: accessToken, 
+                },
+            })
+            .then((response) => {
+                setLikeCount(prevCount => prevCount + 1);
+                console.log(response.data.message); ;
+            })
+            .catch((error) => {
+                console.error("Error liking post:", error);
+                setLiked(false); // Revert back
+            });
+        } else{
+            Axios.delete(`${apiUrl}/likes/${postId}`, {
+                headers: {
+                    accessToken: accessToken, 
+                },
+            })
+            .then((response) => {
+                setLikeCount(prevCount => Math.max(prevCount - 1, 0)); // Ensure it doesn't go below zero
+                console.log(response.data.message); ;
+            })
+            .catch((error) => {
+                console.error("Error unliking post:", error);
+                setLiked(true); // Revert back
+            });
+        }
         
-        // Update like count based on the new liked state
-        const newLikeCount = newLikedState ? likeCount + 1 : Math.max(likeCount - 1, 0);
-        setLikeCount(newLikeCount);
         
-        // Send a request to the server to update the like status
-        Axios.post(`${apiUrl}/likes/${id}`, {
-            postId: id,
-        }, {
-            headers: {
-                accessToken: accessToken, // Ensure this is defined
-            },
-        })
-        .then(() => {
-            console.log("Like status updated successfully");
-        })
-        .catch((error) => {
-            console.error("Error liking post:", error);
-            // Optionally, revert the like state if there's an error
-            setLiked(!newLikedState); // Revert back
-            setLikeCount(newLikedState ? newLikeCount - 1 : newLikeCount + 1); // Adjust count back
-        });
     };
 
     const handleCommentSubmit = (e) => {
