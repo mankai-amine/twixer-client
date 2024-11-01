@@ -1,36 +1,118 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from "@tanstack/react-query";
 import Axios from 'axios';
-// import { UserContext } from "../helpers/UserContext"
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
-const apiUrl = `${process.env.REACT_APP_API_URL}/posts`;
+const apiUrl = `${process.env.REACT_APP_API_URL}`;
 
 export const SinglePost = () => {
     const { id } = useParams();
-    console.log(id);
+    const [comment, setComment] = useState('');
+    const [liked, setLiked] = useState(false); // Track whether the post is liked
+    const [likeCount, setLikeCount] = useState(0); // Track the like count
 
-    const {data: postData, isPending, isError } = useQuery({
+    const accessToken = sessionStorage.getItem("accessToken");
+
+    const { data: postData, isPending, isError } = useQuery({
         queryKey: ["single post", id],
         queryFn: async () => {
-            return Axios.get(`${apiUrl}/${id}`).then((res) => res.data);
+            return Axios.get(`${apiUrl}/posts/${id}`).then((res) => res.data);
         }
     });
+
+    const handleLike = () => {
+        // Toggle the liked state
+        const newLikedState = !liked;
+        setLiked(newLikedState);
+        
+        // Update like count based on the new liked state
+        const newLikeCount = newLikedState ? likeCount + 1 : Math.max(likeCount - 1, 0);
+        setLikeCount(newLikeCount);
+        
+        // Send a request to the server to update the like status
+        Axios.post(`${apiUrl}/likes/${id}`, {
+            postId: id,
+        }, {
+            headers: {
+                accessToken: accessToken, // Ensure this is defined
+            },
+        })
+        .then(() => {
+            console.log("Like status updated successfully");
+        })
+        .catch((error) => {
+            console.error("Error liking post:", error);
+            // Optionally, revert the like state if there's an error
+            setLiked(!newLikedState); // Revert back
+            setLikeCount(newLikedState ? newLikeCount - 1 : newLikeCount + 1); // Adjust count back
+        });
+    };
+
+    const handleCommentSubmit = (e) => {
+        e.preventDefault();
+        // Implement your comment submission logic here
+        console.log('Comment submitted:', comment);
+        setComment(''); // Clear the input after submission
+    };
 
     if (isPending) {
         return <div>Loading post details...</div>;
     }
 
     if (isError) {
-        return <div>There was an error.</div>;
+        return <div>There was an error loading the post.</div>;
     }
 
     return (
-        <div>
-            <h2>Poster: {postData.poster.username}</h2>
-            <textarea rows="15" cols="100" readOnly value={postData.content} />
-            <p>Likes: {postData?.likeCount} </p>
-            <p>Replies: {postData?.replies} </p>
+        <div className="container mt-4">
+            <div className="card shadow-sm">
+                <div className="card-body">
+                    <Link to={`/profile/${postData.poster.username}`} className='text-decoration-none text-reset username-link'>
+                        <h5 className="card-title">{postData.poster.username}</h5>
+                    </Link>
+                    <p className="card-text">{postData.content}</p>
+                    <div className="d-flex justify-content-between align-items-center mb-2">
+                        <div className="d-flex text-muted">
+                            <div className="me-3">
+                                <i className="bi bi-heart-fill me-1" style={{ color: liked ? 'red' : 'gray' }} onClick={handleLike}></i>
+                                {likeCount} Likes
+                            </div>
+                            <div>
+                                <i className="bi bi-chat-fill me-1"></i>
+                                {postData.replies.length} Replies
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="card-footer text-muted">
+                    {new Date(postData.date).toLocaleString()}
+                </div>
+            </div>
+
+            <div className="mt-4">
+                <h6>Comments</h6>
+                <form onSubmit={handleCommentSubmit} className="mb-3">
+                    <div className="input-group">
+                        <input 
+                            type="text" 
+                            className="form-control" 
+                            placeholder="Add a comment..." 
+                            value={comment} 
+                            onChange={(e) => setComment(e.target.value)} 
+                            required 
+                        />
+                        <button className="btn btn-outline-secondary" type="submit">Submit</button>
+                    </div>
+                </form>
+                <ul className="list-group">
+                    {postData.replies.map((reply, index) => (
+                        <li key={index} className="list-group-item">
+                            {reply.content}
+                        </li>
+                    ))}
+                </ul>
+            </div>
         </div>
     );
 };
