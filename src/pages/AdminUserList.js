@@ -13,7 +13,7 @@ const AdminUserList = () => {
 
     const usersPerPage = 10;
     const apiUrl1 = `${process.env.REACT_APP_API_URL}/users/all`;
-    const apiUrlBan = `${process.env.REACT_APP_API_URL}/users/status`; // Ban endpoint URL
+    const apiUrlBan = `${process.env.REACT_APP_API_URL}/users/status`; // Ban + Unban endpoint URL
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -43,7 +43,7 @@ const AdminUserList = () => {
 
     const banUser = async (id) => {
         try {
-            await axios.patch(`${apiUrlBan}/${id}`, {}, {
+            await axios.patch(`${apiUrlBan}/${id}/ban`, {}, {
                 headers: {
                     accessToken: sessionStorage.getItem("accessToken"),
                 },
@@ -53,6 +53,21 @@ const AdminUserList = () => {
         } catch (error) {
             console.error(`Failed to ban user: ${error.response?.data?.message || error.message}`);
             alert(`Failed to ban user: ${error.response?.data?.message || error.message}`);
+        }
+    };
+
+    const unbanUser = async (id) => {
+        try {
+            await axios.patch(`${apiUrlBan}/${id}/unban`, {}, {
+                headers: {
+                    accessToken: sessionStorage.getItem("accessToken"),
+                },
+            });
+            // Update the user's status locally after unbanning
+            setUsers(users.map(user => user.id === id ? { ...user, account_status: 'active' } : user));
+        } catch (error) {
+            console.error(`Failed to unban user: ${error.response?.data?.message || error.message}`);
+            alert(`Failed to unban user: ${error.response?.data?.message || error.message}`);
         }
     };
 
@@ -104,14 +119,14 @@ const AdminUserList = () => {
                                                     <td>{new Date(user.creation_date).toLocaleDateString()}</td>
                                                     <td>
                                                         <Button
-                                                            variant="danger"
-                                                            onClick={() => banUser(user.id)}
-                                                            disabled={user.account_status === 'banned'}
+                                                            variant={user.account_status === 'banned' ? 'success' : 'danger'}
+                                                            onClick={() => user.account_status === 'banned' ? unbanUser(user.id) : banUser(user.id)}
                                                             style={{ textAlign: 'center' }}
                                                         >
-                                                            {user.account_status === 'banned' ? 'Banned' : 'Ban'}
+                                                            {user.account_status === 'banned' ? 'Unban' : 'Ban'}
                                                         </Button>
                                                     </td>
+
                                                 </tr>
                                             ))
                                         ) : (
