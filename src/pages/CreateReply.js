@@ -15,8 +15,7 @@ const replySchema = Yup.object().shape({
 });
 
 export const CreateReply = () => {
-    // TODO, INCORPORATE THIS ON TOP OF THE SINGLE POST PAGE
-    const { postId } = 1;
+    const postId = 1;
 
     const [isSubmitted, setIsSubmitted] = useState(false);
 
