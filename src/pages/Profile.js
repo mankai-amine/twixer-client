@@ -4,6 +4,7 @@ import { Button  } from "react-bootstrap";
 import { Link, useParams } from "react-router-dom";
 import Axios from "axios";
 import Header from '../components/header';
+import { DropdownDelete } from "../components/DropDownDelete";
 
 
 export const Profile = () => {
@@ -19,10 +20,6 @@ export const Profile = () => {
     }, [user]);
 
     const isSameUsername = (username === currUsername);
-
-    //console.log(currUsername);
-    //console.log(username);
-    //console.log(isSameUsername);
 
     const accessToken = sessionStorage.getItem("accessToken");
 
@@ -41,11 +38,11 @@ export const Profile = () => {
         .catch((error)=> {
             console.error("Error fetching user:", error)
         })
-    }, [])
+    }, [username])
 
     const {id, bio, profile_pic} = profileOwner;
 
-    useEffect(() => {
+    const fetchPosts = () =>{
         if(id){
             Axios.get(`${apiUrl}/posts/profilePage/${id}`, {
                 headers: {
@@ -59,11 +56,13 @@ export const Profile = () => {
                 console.error("Error fetching posts:", error);
             });
         }
-        
+    }
+
+    useEffect(() => {
+        fetchPosts();
     }, [id]);
 
-    //console.log(posts);
-
+    
     const followeeId = id;
     useEffect(() => {
         if(id){
@@ -132,17 +131,32 @@ export const Profile = () => {
                 accessToken: accessToken,
             },
         })
-            .then(() => {
-                setIsFollowing(false);
-            })
-            .catch((error) => {
-                console.error("Error handling unfollow", error);
+        .then(() => {
+            setIsFollowing(false);
+        })
+        .catch((error) => {
+            console.error("Error handling unfollow", error);
+        });
+    }
+
+    const handleDelete = (postId) =>{
+        Axios.patch(`${apiUrl}/posts/${postId}`, null, {
+            headers: {
+                accessToken: accessToken,
+            },
+        })
+        .then(() => {
+            setPosts(prevPosts => prevPosts.filter(post => post.id !== postId));
+        })
+        .catch((error) => {
+            console.error("Error fetching posts:", error);
         });
     }
 
     if (!user) {
         return <div>Loading...</div>; 
     }
+
 
     
     return (
@@ -194,28 +208,35 @@ export const Profile = () => {
     
                     {/* Posts */}
                     {posts.map((post) => (
-                        <Link to={`/post/${post.id}`} key={post.id} className="text-decoration-none text-reset">
                             <div className="card mb-3 shadow-sm">
                                 <div className="card-body">
-                                    <div className="d-flex align-items-center mb-2">
+                                    <div className="d-flex align-items-center justify-content-between  mb-2">
                                         <h5 className="card-title mb-0">
                                             {post.poster.username}
                                         </h5>
+                                        <DropdownDelete 
+                                            onDelete={(postId) => {
+                                                handleDelete(postId);
+                                            }} 
+                                            postId={post.id} 
+                                        />
                                     </div>
-                                    <p className="card-text">{post.content}</p>
-                                    <div className="d-flex text-muted">
-                                        <div className="me-3">
-                                            <i className="bi bi-heart-fill me-1"></i>
-                                            {post.likeCount} Likes
+                                    <Link to={`/post/${post.id}`} key={post.id} className="text-decoration-none text-reset">
+                                        <p className="card-text">{post.content}</p>
+                                        <div className="d-flex text-muted">
+                                            <div className="me-3">
+                                                <i className="bi bi-heart-fill me-1"></i>
+                                                {post.likeCount} Likes
+                                            </div>
+                                            <div>
+                                                <i className="bi bi-chat-fill me-1"></i>
+                                                {post.replies.length} Replies
+                                            </div>
                                         </div>
-                                        <div>
-                                            <i className="bi bi-chat-fill me-1"></i>
-                                            {post.replies.length} Replies
-                                        </div>
-                                    </div>
+                                    </Link>
                                 </div>
                             </div>
-                        </Link>
+                        
                     ))} 
                 </div>
             </div>
@@ -223,3 +244,24 @@ export const Profile = () => {
         </div>
     );
 };
+
+
+
+/*useEffect(() => {
+        if(id){
+            Axios.get(`${apiUrl}/posts/profilePage/${id}`, {
+                headers: {
+                    accessToken: accessToken,
+                },
+            })
+            .then((response) => {
+                setPosts(response.data);
+            })
+            .catch((error) => {
+                console.error("Error fetching posts:", error);
+            });
+        }
+        
+    }, [id]);*/
+
+    //console.log(posts);
