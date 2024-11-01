@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import Axios from 'axios';
 // import { UserContext } from "../helpers/UserContext"
 import { useParams } from 'react-router-dom';
+import { CreateReply } from './CreateReply';
 
 const apiUrl = `${process.env.REACT_APP_API_URL}/posts`;
 
@@ -30,6 +31,7 @@ export const SinglePost = () => {
             <h2>Poster: {postData.poster.username}</h2>
             <textarea rows="15" cols="100" readOnly value={postData.content} />
             <p>Likes: {postData?.likeCount} </p>
+            <CreateReply/>
             <p>Replies: {postData?.replies} </p>
         </div>
     );

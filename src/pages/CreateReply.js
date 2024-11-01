@@ -6,19 +6,22 @@ import * as Yup from 'yup';
 import Axios from 'axios';
 import { UserContext } from "../helpers/UserContext"
 
-const apiUrl = `${process.env.REACT_APP_API_URL}/posts`;
+const apiUrl = `${process.env.REACT_APP_API_URL}/replies`;
 
-const postSchema = Yup.object().shape({
-    content: Yup.string().min(10, "Content needs to be at least 10 characters")
-    .max(560, "Content must be less than 560 characters")
-    .required('Post content is required'),
+const replySchema = Yup.object().shape({
+    content: Yup.string().min(5, "Content needs to be at least 5 characters")
+    .max(280, "Content must be less than 280 characters")
+    .required('Reply content is required'),
 });
 
-export const CreatePost = () => {
+export const CreateReply = () => {
+    // TODO, INCORPORATE THIS ON TOP OF THE SINGLE POST PAGE
+    const { postId } = 1;
+
     const [isSubmitted, setIsSubmitted] = useState(false);
 
     const {register, handleSubmit, formState: { errors }} = useForm({
-        resolver: yupResolver(postSchema),
+        resolver: yupResolver(replySchema),
     });
 
     const { setUser } = useContext(UserContext);
@@ -31,7 +34,7 @@ export const CreatePost = () => {
         setServerErrors("");
 
         try {
-            const response = await Axios.post(apiUrl, data, {headers: {
+            const response = await Axios.post(`${apiUrl}/${postId}`, data, {headers: {
                 "accessToken": sessionStorage.getItem("accessToken"),
             },
             });
@@ -39,45 +42,45 @@ export const CreatePost = () => {
                 setIsSubmitted(true);
             } else {
                 setIsSubmitted(false);
-                alert("Posting failed. Please try again.");
-                // TODO change to something other than alert
+                alert("Reply failed. Please try again.");
+                // TODO change this to a flash message
             }
 
         } catch (error) {
             if (error.response) {
                 setServerErrors(error.response.data);
             } else {
-                console.error('Error posting:', error);
+                console.error('Error replying:', error);
                 setSubmissionStatus('Error occurred');
             }
             
         }
     };
-    // TODO customize the form
+
     return (
         <div style={{ backgroundColor: '#abcdef', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Container className='mt-5'>
                 <Row className='justify-content-md-center'>
                     <Col md={6} lg={4}>
                         <div className='register-box text-center'>
-                            <h2 className='mb-4 twixer-logo'> Create Post</h2>
+                            <h2 className='mb-4 twixer-logo'>Reply to the conversation</h2>
                          
                             <Form onSubmit={handleSubmit(onSubmit)}>
                                 <Form.Group controlId='formContent' className='mb-3'>
                                     <Form.Control
                                         as="textarea"
                                         rows={6}
-                                        placeholder="Tell everyone what's on your mind"
+                                        placeholder="Type reply here"
                                         {...register('content')}
                                     />
                                     {errors.content && <p className="text-danger">{errors.content.message}</p>}
                                 </Form.Group>
 
                                 <Button variant='primary' type='submit' className='w-100 mb-3'>
-                                    Create Post
+                                    Create Reply
                                 </Button>
 
-                                {isSubmitted && <p className="text-success">Post created</p>}
+                                {isSubmitted && <p className="text-success">Reply created</p>}
                             </Form>
                         </div>
                     </Col>
@@ -85,4 +88,5 @@ export const CreatePost = () => {
             </Container>
         </div>
     );
+
 };
