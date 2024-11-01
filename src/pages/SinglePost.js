@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery } from "@tanstack/react-query";
 import Axios from 'axios';
-import { CreateReply } from './CreateReply';
 import { useParams, Link } from 'react-router-dom';
 import { Container, Row, Col, Spinner, Alert, Button, Form } from 'react-bootstrap';
 import Header from '../components/header';
@@ -56,7 +55,22 @@ export const SinglePost = () => {
 
     const handleCommentSubmit = (e) => {
         e.preventDefault();
-        // Implement your comment submission logic here
+
+        Axios.post(`${apiUrl}/replies/${id}`, {
+            postId: id,
+            content: comment
+        }, {
+            headers: {
+                accessToken: accessToken, // Ensure this is defined
+            },
+        })
+        .then(() => {
+            console.log("Reply added");
+        })
+        .catch((error) => {
+            console.error("Error replying to post:", error);
+        });
+
         console.log('Comment submitted:', comment);
         setComment(''); // Clear the input after submission
     };
