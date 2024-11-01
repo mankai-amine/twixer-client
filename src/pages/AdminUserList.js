@@ -1,22 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Table, Pagination } from 'react-bootstrap';
+import { Container, Table, Pagination, Button, Row, Col } from 'react-bootstrap';
 import axios from 'axios';
 import Header from '../components/header';
+import Sidebar from '../components/sidebar';
 
 const AdminUserList = () => {
-    const [users, setUsers] = useState([]);
+    const [users, setUsers] = useState([]); // Initialize as an empty array
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null); // For error handling
 
     const usersPerPage = 10;
-    const apiUrl = `${process.env.REACT_APP_API_URL}/admin/users`;
+    const apiUrl1 = `${process.env.REACT_APP_API_URL}/users/all`;
+    const apiUrlBan = `${process.env.REACT_APP_API_URL}/users/status`; // Ban endpoint URL
 
     useEffect(() => {
         const fetchUsers = async () => {
             setLoading(true);
+            setError(null);
             try {
-                const response = await axios.get(apiUrl, {
+                const response = await axios.get(apiUrl1, {
                     headers: {
                         accessToken: sessionStorage.getItem("accessToken"),
                     },
@@ -25,72 +29,120 @@ const AdminUserList = () => {
                         limit: usersPerPage,
                     },
                 });
-                console.log("Users:", response.data.users); // Debugging
-                console.log("Total Pages:", response.data.totalPages); // Debugging
-    
-                setUsers(response.data.users);
-                setTotalPages(response.data.totalPages);
-                setLoading(false);
+                setUsers(response.data || []);
+                setTotalPages(response.data.totalPages || 1);
             } catch (error) {
-                console.error('Error fetching users:', error);
+                setError(`Failed to fetch users: ${error.response?.data?.error || error.message}`);
+                setUsers([]);
+            } finally {
                 setLoading(false);
             }
         };
         fetchUsers();
-    }, [currentPage]);
-    
+    }, [currentPage, apiUrl1]);
+
+    const banUser = async (id) => {
+        try {
+            await axios.patch(`${apiUrlBan}/${id}`, {}, {
+                headers: {
+                    accessToken: sessionStorage.getItem("accessToken"),
+                },
+            });
+            // Update the user's status locally after banning
+            setUsers(users.map(user => user.id === id ? { ...user, account_status: 'banned' } : user));
+        } catch (error) {
+            console.error(`Failed to ban user: ${error.response?.data?.message || error.message}`);
+            alert(`Failed to ban user: ${error.response?.data?.message || error.message}`);
+        }
+    };
 
     const handlePageChange = (page) => setCurrentPage(page);
 
     return (
         <div>
             <Header />
-            <Container className='mt-4'>
-                <h2>User List</h2>
+            <Container fluid className="mt-4">
+                <Row>
+                    {/* Sidebar Section */}
+                    <Col md={3} lg={2} className="px-0">
+                        <Sidebar />
+                    </Col>
 
-                {loading ? (
-                    <p>Loading users...</p>
+                    {/* Main Content Section */}
+                    <Col md={9} lg={10}>
+                        <h2>User List</h2>
 
-                ) : (
-                    <>
-                        <Table striped bordered hover>
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Username</th>
-                                    <th>Email</th>
-                                    <th>Role</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {users.map((user) => (
-                                    <tr key={user.id}>
-                                        <td>{user.id}</td>
-                                        <td>{user.username}</td>
-                                        <td>{user.email}</td>
-                                        <td>{user.role}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </Table>
+                        {loading ? (
+                            <p>Loading users...</p>
+                        ) : error ? (
+                            <p style={{ color: 'red' }}>{error}</p>
+                        ) : (
+                            <>
+                                <Table striped bordered hover>
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Username</th>
+                                            <th>Email</th>
+                                            <th>Role</th>
+                                            <th>Status</th>
+                                            <th>Bio</th>
+                                            <th>Creation Date</th>
+                                            <th>User Options</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {users.length > 0 ? (
+                                            users.map((user) => (
+                                                <tr key={user.id}>
+                                                    <td>{user.id}</td>
+                                                    <td>{user.username}</td>
+                                                    <td>{user.email}</td>
+                                                    <td>{user.role}</td>
+                                                    <td>{user.account_status}</td>
+                                                    <td>{user.bio}</td>
+                                                    <td>{new Date(user.creation_date).toLocaleDateString()}</td>
+                                                    <td>
+                                                        <Button
+                                                            variant="danger"
+                                                            onClick={() => banUser(user.id)}
+                                                            disabled={user.account_status === 'banned'}
+                                                            style={{ textAlign: 'center' }}
+                                                        >
+                                                            {user.account_status === 'banned' ? 'Banned' : 'Ban'}
+                                                        </Button>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan="8" style={{ textAlign: 'center' }}>
+                                                    No users found
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </Table>
 
-                        <Pagination className='justify-content-center mt-3'>
-                            <Pagination.First onClick={() => handlePageChange(1)} disabled={currentPage === 1} />
-                            <Pagination.Prev onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} />
-                            {[...Array(totalPages)].map((_, i) => (
-                                <Pagination.Item
-                                    key={i + 1}
-                                    active={i + 1 === currentPage}
-                                    onClick={() => handlePageChange(i + 1)}
-                                >
-                                    {i + 1}
-                                </Pagination.Item>
-                            ))}
-                            <Pagination.Next onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} />
-                            <Pagination.Last onClick={() => handlePageChange(totalPages)} disabled={currentPage === totalPages} />
-                        </Pagination>
-                    </>
-                )}
+                                <Pagination className="justify-content-center mt-3">
+                                    <Pagination.First onClick={() => handlePageChange(1)} disabled={currentPage === 1} />
+                                    <Pagination.Prev onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} />
+                                    {[...Array(totalPages)].map((_, i) => (
+                                        <Pagination.Item
+                                            key={i + 1}
+                                            active={i + 1 === currentPage}
+                                            onClick={() => handlePageChange(i + 1)}
+                                        >
+                                            {i + 1}
+                                        </Pagination.Item>
+                                    ))}
+                                    <Pagination.Next onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} />
+                                    <Pagination.Last onClick={() => handlePageChange(totalPages)} disabled={currentPage === totalPages} />
+                                </Pagination>
+                            </>
+                        )}
+                    </Col>
+                </Row>
             </Container>
         </div>
     );
