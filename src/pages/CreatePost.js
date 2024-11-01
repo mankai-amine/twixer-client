@@ -5,6 +5,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 import Axios from 'axios';
 import { UserContext } from "../helpers/UserContext"
+import { useNavigate } from 'react-router-dom';
 
 const apiUrl = `${process.env.REACT_APP_API_URL}/posts`;
 
@@ -25,6 +26,8 @@ export const CreatePost = () => {
 
     const [serverErrors, setServerErrors] = useState("");
 
+    const navigate = useNavigate();
+
     const onSubmit = async (data) => {
         setServerErrors("");
 
@@ -35,6 +38,7 @@ export const CreatePost = () => {
             });
             if (response.status === 201) {
                 setIsSubmitted(true);
+                navigate("/");
             } else {
                 setIsSubmitted(false);
                 alert("Posting failed. Please try again.");
