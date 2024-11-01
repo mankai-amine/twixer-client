@@ -33,7 +33,7 @@ function App() {
             <Route path='/register' element={<Register />} />
             <Route path='/account' element={<Account />} />
             <Route path='/password' element={<Password />} />
-            <Route path='/profile' element={<Profile />} />
+            <Route path='/profile/:username' element={<Profile />} />
             <Route path='/post/:id' element={<SinglePost />} />
             <Route path='/' element={<ProtectedRoute element={MainFeedLayout} />} />
             <Route path='/following' element={<ProtectedRoute element={FollowFeedLayout} />} />

@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Button, Nav } from 'react-bootstrap';
 import '../components.css';
 import { UserContext } from "../helpers/UserContext";
@@ -7,7 +7,18 @@ import { Link } from "react-router-dom";
 
 
 const Sidebar = () => {
-    const { setUser } = useContext(UserContext); // Access setUser from context
+
+    const { user, setUser } = useContext(UserContext); // Access setUser from context
+    const [username, setUsername] = useState("");
+
+    useEffect(() => {
+        
+        if (!user) return;
+
+        setUsername(user.username);
+
+    }, [user]);
+
     const navigate = useNavigate();
 
     const handleLogout = () => {
@@ -23,7 +34,7 @@ const Sidebar = () => {
     return (
         <div className="d-flex flex-column sidebar p-3 mt-4" style={{ height: '100vh' }}>
             <Nav className='flex-column mb-3' style={{ overflowY: 'auto' }}>
-                <Link to="/profile">
+                <Link to={`/profile/${username}`}>
                     <Button variant="outline-secondary" className="mb-3" style={{ width: '100%' }}>Profile</Button>
                 </Link>
 

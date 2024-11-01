@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { UserContext } from "../helpers/UserContext";
 import { Container, Card } from 'react-bootstrap';
 import { Link } from "react-router-dom";
+import '../components.css';
 
 
 const Feed = () => {
@@ -11,11 +13,11 @@ const Feed = () => {
     const [hasMore, setHasMore] = useState(true);
     const apiUrl = `${process.env.REACT_APP_API_URL}/posts/generalFeed`;
 
-    const fetchPosts = useCallback(async () => {
+    const fetchPosts = useCallback(async (pageNum) => {
         const accessToken = sessionStorage.getItem("accessToken");
 
         try {
-            const response = await axios.get(`${apiUrl}?page=${page}&limit=10`,
+            const response = await axios.get(`${apiUrl}?page=${pageNum}&limit=10`,
                 {
                     headers: {
                         accessToken: accessToken,
@@ -27,23 +29,34 @@ const Feed = () => {
             if (newPosts.length === 0) {
                 setHasMore(false);
             } else {
-                setPosts((prevPosts) => [...prevPosts, ...newPosts]);
-                setPage((prevPage) => prevPage + 1);
+                if (pageNum === 1) {
+                    // If it's the first page, replace existing posts
+                    setPosts(newPosts);
+                } else {
+                    // For subsequent pages, append new posts
+                    setPosts((prevPosts) => [...prevPosts, ...newPosts]);
+                }
+                setPage(pageNum + 1);
             }
         } catch (error) {
             console.error('Error fetching posts: ', error);
         }
-    }, [page, apiUrl]);
+    }, [apiUrl]);
 
     useEffect(() => {
-        fetchPosts();
-    }, [fetchPosts]);
+        fetchPosts(1);
+    }, []);
+
+    const loadMore = () => {
+        fetchPosts(page);
+    };
+
 
     return (
         <Container className='mt-4'>
             <InfiniteScroll
                 dataLength={posts.length}
-                next={fetchPosts}
+                next={loadMore}
                 hasMore={hasMore}
                 loader={<h4>Loading...</h4>}
                 endMessage={<p className='text-center'>No more posts to show</p>}
@@ -52,8 +65,13 @@ const Feed = () => {
                     <Link to={`/post/${post.id}`} key={post.id || index}  className="text-decoration-none text-reset">
                         <Card  className='mb-3'>
                             <Card.Body>
-                                <Card.Title>{post.poster.username}</Card.Title>
-                                <Card.Text>{post.content}</Card.Text>
+                                <Link to={`/profile/${post.poster.username}`} className='text-decoration-none text-reset username-link'>
+                                    <Card.Title>{post.poster.username}</Card.Title>
+                                </Link>
+                                
+                                <Card.Text>
+                                    {post.content}
+                                </Card.Text>
                                 <div className="d-flex text-muted">
                                     <div className="me-3">
                                         <i className="bi bi-heart-fill me-1"></i>
