@@ -9,13 +9,14 @@ const FollowFeed = () => {
     const [posts, setPosts] = useState([]);
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
+    
     const apiUrl = `${process.env.REACT_APP_API_URL}/posts/followFeed`;
 
-    const fetchPosts = useCallback(async () => {
+    const fetchPosts = useCallback(async (pageNum) => {
         const accessToken = sessionStorage.getItem("accessToken");
 
         try {
-            const response = await axios.get(`${apiUrl}?page=${page}&limit=10`,
+            const response = await axios.get(`${apiUrl}?page=${pageNum}&limit=10`,
                 {
                     headers: {
                         accessToken: accessToken,
@@ -27,23 +28,33 @@ const FollowFeed = () => {
             if (newPosts.length === 0) {
                 setHasMore(false);
             } else {
-                setPosts((prevPosts) => [...prevPosts, ...newPosts]);
-                setPage((prevPage) => prevPage + 1);
+                if (pageNum === 1) {
+                    // If it's the first page, replace existing posts
+                    setPosts(newPosts);
+                } else {
+                    // For subsequent pages, append new posts
+                    setPosts((prevPosts) => [...prevPosts, ...newPosts]);
+                }
+                setPage(pageNum + 1);
             }
         } catch (error) {
             console.error('Error fetching posts: ', error);
         }
-    }, [page, apiUrl]);
+    }, [apiUrl]);
 
     useEffect(() => {
-        fetchPosts();
+        fetchPosts(1);
     }, [fetchPosts]);
+
+    const loadMore = () => {
+        fetchPosts(page);
+    };
 
     return (
         <Container className='mt-4'>
             <InfiniteScroll
                 dataLength={posts.length}
-                next={fetchPosts}
+                next={loadMore}
                 hasMore={hasMore}
                 loader={<h4>Loading...</h4>}
                 endMessage={<p className='text-center'>No more posts to show</p>}
