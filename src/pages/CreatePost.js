@@ -6,6 +6,7 @@ import * as Yup from 'yup';
 import Axios from 'axios';
 import { UserContext } from "../helpers/UserContext"
 import { useNavigate } from 'react-router-dom';
+import Header from '../components/header';
 
 const apiUrl = `${process.env.REACT_APP_API_URL}/posts`;
 
@@ -57,34 +58,36 @@ export const CreatePost = () => {
     };
     // TODO customize the form
     return (
-        <div style={{ backgroundColor: '#abcdef', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Container className='mt-5'>
-                <Row className='justify-content-md-center'>
-                    <Col md={6} lg={4}>
-                        <div className='register-box text-center'>
-                            <h2 className='mb-4 twixer-logo'> Create Post</h2>
-                         
-                            <Form onSubmit={handleSubmit(onSubmit)}>
-                                <Form.Group controlId='formContent' className='mb-3'>
-                                    <Form.Control
-                                        as="textarea"
-                                        rows={6}
-                                        placeholder="Tell everyone what's on your mind"
-                                        {...register('content')}
-                                    />
-                                    {errors.content && <p className="text-danger">{errors.content.message}</p>}
-                                </Form.Group>
+        <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+            <Header />
+            <div style={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#abcdef' }}>
+                <Container className='mt-5'>
+                    <Row className='justify-content-md-center'>
+                        <Col md={6} lg={4}>
+                            <div className='register-box text-center'>
+                                <h2 className='mb-4 twixer-logo'>Create Post</h2>
+                                <Form onSubmit={handleSubmit(onSubmit)}>
+                                    <Form.Group controlId='formContent' className='mb-3'>
+                                        <Form.Control
+                                            as="textarea"
+                                            rows={6}
+                                            placeholder="Tell everyone what's on your mind"
+                                            {...register('content')}
+                                        />
+                                        {errors.content && <p className="text-danger">{errors.content.message}</p>}
+                                    </Form.Group>
 
-                                <Button variant='primary' type='submit' className='w-100 mb-3'>
-                                    Create Post
-                                </Button>
+                                    <Button variant='primary' type='submit' className='w-100 mb-3'>
+                                        Create Post
+                                    </Button>
 
-                                {isSubmitted && <p className="text-success">Registration successful!</p>}
-                            </Form>
-                        </div>
-                    </Col>
-                </Row>
-            </Container>
+                                    {isSubmitted && <p className="text-success">Post created successfully!</p>}
+                                </Form>
+                            </div>
+                        </Col>
+                    </Row>
+                </Container>
+            </div>
         </div>
     );
 };
