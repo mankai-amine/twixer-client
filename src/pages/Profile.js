@@ -161,14 +161,14 @@ export const Profile = () => {
 
     
     return (
-        <div style={{ backgroundColor: '#A9A9A9', minHeight: '100vh', margin: '0', padding: '0' }}>
+        <div style={{ backgroundColor: 'white', minHeight: '100vh', margin: '0', padding: '0' }}>
         {<Header />}
         <div className="d-flex" style={{ marginTop: '0', paddingTop: '0' }}>
             <Sidebar style={{ margin: '0', padding: '0', height: '100vh', position: 'sticky', top: '0' }} />  
             <Container className="mt-5">
                 <Row className="justify-content-center">
                     <Col md={8}>
-                        <Card className="mb-4 shadow-sm" style={{ backgroundColor: '#EFEFEF' }}>
+                        <Card className="mb-4 shadow-sm" style={{ backgroundColor: 'white' }}>
                             <Card.Body>
                                 <div className="d-flex align-items-center justify-content-between mb-3">
                                     <div className="d-flex align-items-center">

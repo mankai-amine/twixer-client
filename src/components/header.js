@@ -4,7 +4,7 @@ import '../components.css';
 
 const Header = () => {
     return (
-        <Navbar style={{ backgroundColor: '#caebf2', marginBottom: '0px' }} variant='dark' className='p-3'>
+        <Navbar style={{ backgroundColor: '#106cfc', marginBottom: '0px' }} variant='dark' className='p-3'>
             <Container className='d-flex justify-content-between align-items-center'>
                 <Navbar.Brand className='logo mx-auto'>
                     Twixer <span role='img' aria-label='bird'></span>

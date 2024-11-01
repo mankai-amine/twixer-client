@@ -32,7 +32,7 @@ const Sidebar = () => {
     }
 
     return (
-        <div className="d-flex flex-column sidebar p-3 " style={{ height: '100vh', background: '#CAEBF2'}}>
+        <div className="d-flex flex-column sidebar p-3 " style={{ height: '100vh', background: 'white'}}>
         <Nav className='flex-column mb-3' style={{ overflowY: 'auto'}}>
             <Link to={`/profile/${username}`}>
                 <Button variant="outline-secondary" className="mb-3" style={{ width: '100%' }}>Profile</Button>

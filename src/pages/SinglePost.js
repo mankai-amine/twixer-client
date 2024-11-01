@@ -42,9 +42,9 @@ export const SinglePost = () => {
     return (
         <>
             <Header />
-            <div className="d-flex" style={{ backgroundColor: '#A9A9A9', minHeight: '100vh' }}> 
+            <div className="d-flex" style={{ backgroundColor: 'white', minHeight: '100vh' }}> 
                 <Sidebar />
-                <Container className="mt-5 post-container" style={{ maxWidth: '1000px', backgroundColor: '#EFEFEF', padding: '20px', borderRadius: '10px' }}> 
+                <Container className="mt-5 post-container" style={{ maxWidth: '1000px', backgroundColor: 'white', padding: '20px', borderRadius: '10px' }}> 
                     {postData && (
                         <>
                             <Row className="mb-3">
