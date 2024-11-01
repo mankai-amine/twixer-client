@@ -83,60 +83,56 @@ export const SinglePost = () => {
             <Header />
             <div className="d-flex" style={{ backgroundColor: 'white', minHeight: '100vh' }}> 
                 <Sidebar />
-                <Container className="mt-5 post-container" style={{ maxWidth: '1000px', backgroundColor: 'white', padding: '20px', borderRadius: '10px' }}> 
-                    {postData && (
-                        <>
-                            <Row className="mb-3">
-                                <Col xs={2} className="text-center">
-                                    {postData.poster?.profilePicture ? (
-                                        <img src={postData.poster.profilePicture} alt="Profile" className="rounded-circle" style={{ width: '50px', height: '50px' }} />
-                                    ) : (
-                                        <div className="profile-placeholder bg-secondary rounded-circle" style={{ width: '50px', height: '50px' }}></div>
-                                    )}
-                                </Col>
-                                <Col>
-                                    <h5 className="mb-0">{postData.poster?.username || 'Unknown'}</h5>
-                                    <small className="text-muted">@{postData.poster?.username.toLowerCase() || 'unknown'}</small>
-                                </Col>
-                            </Row>
-                            <Row className="mb-4">
-                                <Col>
-                                    <p style={{ color: 'black' }}>{postData.content ? postData.content : 'No content available'}</p>
-                                </Col>
-                            </Row>
-                            <Row className="mb-3 text-muted">
-                                <Col>
-                                    <small>{new Date(postData.date).toLocaleString()}</small>
-                                </Col>
-                            </Row>
-                            <Row className="mb-4 text-muted">
-                                <Col>
-                                    <span>{postData.replies?.length || '0'} Comments</span> • <span>{postData.orig_post_id ? '1' : '0'} Quote Tweets</span> • <span>{postData.likes?.length || '0'} Likes</span>
-                                </Col>
-                            </Row>
-                            <Row className="mb-4">
-                                <Col className="d-flex justify-content-center align-items-center gap-5">
-                                    <Button variant="outline-secondary" className="d-flex align-items-center">
-                                        Retweet
-                                    </Button>
-                                    <Button variant="outline-secondary" className="d-flex align-items-center">
-                                        Like
-                                    </Button>
-                                </Col>
-                            </Row>
-                            <Row className="mb-3">
-                                <Col>
-                                    <Form>
-                                        <Form.Group controlId="commentInput">
-                                            <Form.Control type="text" placeholder="Write a comment..." />
-                                        </Form.Group>
-                                        <Button variant="primary" className="mt-2">Comment</Button>
-                                    </Form>
-                                </Col>
-                            </Row>
-                        </>
-                    )}
-                </Container>
+                <div className="container mt-3" style={{ maxWidth: '900px' }}>
+                    <div className="card shadow-sm">
+                        <div className="card-body">
+                            <Link to={`/profile/${postData.poster.username}`} className='text-decoration-none text-reset username-link'>
+                                <h5 className="card-title">{postData.poster.username}</h5>
+                            </Link>
+                            <p className="card-text">{postData.content}</p>
+                            <div className="d-flex justify-content-between align-items-center mb-2">
+                                <div className="d-flex text-muted">
+                                    <div className="me-3">
+                                        <i className="bi bi-heart-fill me-1" style={{ color: liked ? 'red' : 'gray' }} onClick={handleLike}></i>
+                                        {likeCount} Likes
+                                    </div>
+                                    <div>
+                                        <i className="bi bi-chat-fill me-1"></i>
+                                        {postData.replies.length} Replies
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="card-footer text-muted">
+                            {new Date(postData.date).toLocaleString()}
+                        </div>
+                    </div>
+
+                    <div className="mt-4">
+                        <h6>Comments</h6>
+                        <form onSubmit={handleCommentSubmit} className="mb-3">
+                            <div className="input-group">
+                                <input 
+                                    type="text" 
+                                    className="form-control" 
+                                    placeholder="Add a comment..." 
+                                    value={comment} 
+                                    onChange={(e) => setComment(e.target.value)} 
+                                    required 
+                                />
+                                <button className="btn btn-outline-secondary" type="submit">Submit</button>
+                            </div>
+                        </form>
+                        <ul className="list-group">
+                            {postData.replies.map((reply, index) => (
+                                <li key={index} className="list-group-item">
+                                    {reply.content}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                </div>
+
             </div>
         </>
     );
