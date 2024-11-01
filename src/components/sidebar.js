@@ -50,8 +50,13 @@ const Sidebar = () => {
                 <Button variant="outline-secondary" className="mb-3" style={{ width: '100%' }}>Upgrade</Button>
             </Link>
             <Link to="/createpost">
-            <Button variant="outline-secondary" className="mb-3" style={{ width: '100%' }}>Make Post</Button>
+                <Button variant="outline-secondary" className="mb-3" style={{ width: '100%' }}>Make Post</Button>
             </Link>
+            {user?.role === 'admin' && (
+                <Link to="/admin/users">
+                    <Button variant="outline-secondary" className="mb-3" style={{ width: '100%' }}>User List</Button>
+                </Link>
+            )}
         </Nav>
         <Button variant="outline-danger" className="mt-5" onClick={handleLogout}>
             Logout
