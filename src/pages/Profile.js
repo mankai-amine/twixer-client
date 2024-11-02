@@ -218,12 +218,12 @@ export const Profile = () => {
                                         <h5 className="card-title mb-0">
                                             {post.poster.username}
                                         </h5>
-                                        <DropdownDelete 
+                                        {isSameUsername && <DropdownDelete 
                                             onDelete={(postId) => {
                                                 handleDelete(postId);
                                             }} 
                                             postId={post.id} 
-                                        />
+                                        /> }
                                     </div>
                                     <Link to={`/post/${post.id}`} key={post.id} className="text-decoration-none text-reset">
                                         <p className="card-text">{post.content}</p>
