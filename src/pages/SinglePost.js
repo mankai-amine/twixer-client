@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext  } from 'react';
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Axios from 'axios';
 import { useParams, Link } from 'react-router-dom';
 import { Container, Row, Col, Spinner, Alert, Button, Form } from 'react-bootstrap';
 import Header from '../components/header';
 import Sidebar from '../components/sidebar';
+import { UserContext } from "../helpers/UserContext";
+import { DropdownDelete } from "../components/DropDownDelete";
+
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -16,9 +19,13 @@ export const SinglePost = () => {
     const [liked, setLiked] = useState(false); // Track whether the post is liked
     const [likeCount, setLikeCount] = useState(0); // Track the like count
     const [submitError, setSubmitError] = useState(''); // for reply section
+    const [isPostOwner, setIsPostOwner] = useState(false); 
+    const [refresh, setRefresh] = useState(0); // Initialize a state for refresh
+
 
     const queryClient = useQueryClient();
     const accessToken = sessionStorage.getItem("accessToken");
+    const { user } = useContext(UserContext); 
 
     const postId = id;
 
@@ -29,11 +36,18 @@ export const SinglePost = () => {
         }
     });
 
+    
+
     useEffect(() => {
         if (postData && likeCount === 0) {
             setLikeCount(postData.likeCount || 0); // Initialize likeCount from postData
         }
-    }, [postData, likeCount]);
+
+        if (postData && user ) {
+        setIsPostOwner(postData.poster.username === user.username);
+        }
+
+    }, [postData, likeCount, user]);
 
     useEffect(() => {
         Axios.get(`${apiUrl}/likes/isLiked/${postId}`, {
@@ -114,6 +128,22 @@ export const SinglePost = () => {
         }
     };
 
+    const handleDelete = (postId) =>{
+        Axios.patch(`${apiUrl}/posts/${postId}`, null, {
+            headers: {
+                accessToken: accessToken,
+            },
+        })
+        .then(() => {
+            console.log("Post deleted");
+            postData.content="This post was deleted"
+            setRefresh(prev => prev + 1); 
+        })
+        .catch((error) => {
+            console.error("Error fetching posts:", error);
+        });
+    }
+
     if (isPending) {
         return (
             <Container className="text-center mt-5">
@@ -140,9 +170,17 @@ export const SinglePost = () => {
                 <div className="container mt-3" style={{ maxWidth: '900px' }}>
                     <div className="card shadow-sm">
                         <div className="card-body">
-                            <Link to={`/profile/${postData.poster.username}`} className='text-decoration-none text-reset username-link'>
-                                <h5 className="card-title">{postData.poster.username}</h5>
-                            </Link>
+                            <div className="d-flex align-items-center justify-content-between mb-2">
+                                <Link to={`/profile/${postData.poster.username}`} className='text-decoration-none text-reset username-link'>
+                                    <h5 className="card-title">{postData.poster.username}</h5>
+                                </Link>
+                                {isPostOwner && <DropdownDelete 
+                                            onDelete={(postId) => {
+                                                handleDelete(postId);
+                                            }} 
+                                            postId={postData.id} 
+                                />}
+                            </div>
                             <p className="card-text">{postData.content}</p>
                             <div className="d-flex justify-content-between align-items-center mb-2">
                                 <div className="d-flex text-muted">
