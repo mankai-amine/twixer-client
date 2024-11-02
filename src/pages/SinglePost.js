@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext  } from 'react';
+import React, { useState, useEffect, useContext, useRef  } from 'react';
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Axios from 'axios';
 import { useParams, Link } from 'react-router-dom';
@@ -7,8 +7,6 @@ import Header from '../components/header';
 import Sidebar from '../components/sidebar';
 import { UserContext } from "../helpers/UserContext";
 import { DropdownDelete } from "../components/DropDownDelete";
-
-
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const apiUrl = `${process.env.REACT_APP_API_URL}`;
@@ -21,7 +19,7 @@ export const SinglePost = () => {
     const [submitError, setSubmitError] = useState(''); // for reply section
     const [isPostOwner, setIsPostOwner] = useState(false); 
     const [isAdmin, setIsAdmin] = useState(false); 
-    const [refresh, setRefresh] = useState(0); // Initialize a state for refresh
+    const firstRender = useRef(true); // Initialize ref to track first render
 
 
     const queryClient = useQueryClient();
@@ -37,11 +35,10 @@ export const SinglePost = () => {
         }
     });
 
-    
-
     useEffect(() => {
-        if (postData && likeCount === 0) {
-            setLikeCount(postData.likeCount || 0); // Initialize likeCount from postData
+        if (postData && firstRender.current) {
+            setLikeCount(postData.likeCount); // Initialize likeCount from postData
+            firstRender.current = false;
         }
 
         if (postData && user ) {
@@ -52,7 +49,11 @@ export const SinglePost = () => {
             setIsAdmin(user.role === "admin");
         }
 
-    }, [postData, likeCount, user]);
+    }, [postData, user]);
+    console.log(postData);
+    console.log("first", likeCount);
+
+
 
     useEffect(() => {
         Axios.get(`${apiUrl}/likes/isLiked/${postId}`, {
@@ -66,44 +67,36 @@ export const SinglePost = () => {
         .catch((error) => {
             console.error("Error get isLiked:", error);
         });
-    }, []);
+    }, [postId]);
 
-    console.log(liked);
+    //console.log(liked);
+    console.log(likeCount);
 
     
-    const handleLike = () => {
-        // Toggle the liked state
+    const handleLike = async () => {
         const newLikedState = !liked;
         setLiked(newLikedState);
-
-        if(newLikedState){
-            Axios.post(`${apiUrl}/likes/${postId}`, null, {
-                headers: {
-                    accessToken: accessToken, 
-                },
-            })
-            .then((response) => {
+    
+        try {
+            if (newLikedState) {
+                await Axios.post(`${apiUrl}/likes/${postId}`, null, {
+                    headers: {
+                        accessToken: accessToken,
+                    },
+                });
                 setLikeCount(prevCount => prevCount + 1);
-                console.log(response.data.message); ;
-            })
-            .catch((error) => {
-                console.error("Error liking post:", error);
-                setLiked(false); // Revert back
-            });
-        } else{
-            Axios.delete(`${apiUrl}/likes/${postId}`, {
-                headers: {
-                    accessToken: accessToken, 
-                },
-            })
-            .then((response) => {
-                setLikeCount(prevCount => Math.max(prevCount - 1, 0)); // Ensure it doesn't go below zero
-                console.log(response.data.message); ;
-            })
-            .catch((error) => {
-                console.error("Error unliking post:", error);
-                setLiked(true); // Revert back
-            });
+            } else {
+                await Axios.delete(`${apiUrl}/likes/${postId}`, {
+                    headers: {
+                        accessToken: accessToken,
+                    },
+                });
+                setLikeCount(prevCount => Math.max(prevCount - 1, 0));
+            }
+            
+        } catch (error) {
+            console.error("Error updating like:", error);
+            setLiked(!newLikedState); // Revert the liked state if an error occurs
         }
     };
 
@@ -140,7 +133,6 @@ export const SinglePost = () => {
         .then(() => {
             console.log("Post deleted");
             postData.content="This post was deleted"
-            setRefresh(prev => prev + 1); 
         })
         .catch((error) => {
             console.error("Error fetching posts:", error);
