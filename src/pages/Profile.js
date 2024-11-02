@@ -304,7 +304,7 @@ export const Profile = () => {
                                                         }
                                                     }}>                                            
                                                 </i>
-                                                {likeCounts[post.id] || 0} Likes
+                                                {likeCounts[post.id]} Likes
                                             </div>
                                             <div>
                                                 <i className="bi bi-chat-fill me-1"></i>

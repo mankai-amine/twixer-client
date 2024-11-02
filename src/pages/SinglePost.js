@@ -100,8 +100,6 @@ export const SinglePost = () => {
                 setLiked(true); // Revert back
             });
         }
-        
-        
     };
 
     const handleCommentSubmit = async (e) => {
