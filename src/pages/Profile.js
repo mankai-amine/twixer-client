@@ -13,6 +13,8 @@ export const Profile = () => {
     const { user } = useContext(UserContext); 
     const [currUsername, setCurrUsername] = useState("");
     const [isFollowing, setIsFollowing] = useState(false);
+    const [likedPosts, setLikedPosts] = useState({}); // Track liked state for each post
+    const [likeCounts, setLikeCounts] = useState({}); // Track like count for each post
 
 
     useEffect(() => {
@@ -21,9 +23,7 @@ export const Profile = () => {
     }, [user]);
 
     const isSameUsername = (username === currUsername);
-
     const accessToken = sessionStorage.getItem("accessToken");
-
     const apiUrl = process.env.REACT_APP_API_URL;
 
     const [profileOwner, setProfileOwner] = useState({});
@@ -31,6 +31,7 @@ export const Profile = () => {
     const [following, setFollowing] = useState();
     const [posts, setPosts] = useState([]);
 
+    
     useEffect( ()=> {
         Axios.get(`${apiUrl}/users/username/${username}`)
         .then( (response) => {
@@ -154,6 +155,68 @@ export const Profile = () => {
         });
     }
 
+    useEffect(() => {
+        const newLikedPosts = {};
+        const newLikeCounts = {};
+        
+        posts.forEach(post => {
+            // Initialize like counts
+            newLikeCounts[post.id] = post.likeCount;
+            
+            // Check if each post is liked
+            Axios.get(`${apiUrl}/likes/isLiked/${post.id}`, {
+                headers: { accessToken }
+            })
+            .then(response => {
+                setLikedPosts(prev => ({
+                    ...prev,
+                    [post.id]: response.data.isPostLiked
+                }));
+            })
+            .catch(error => console.error("Error checking like status:", error));
+        });
+        
+        setLikeCounts(newLikeCounts);
+    }, [posts]);
+
+    const handleLike = async (postId) => {
+        try {
+            const response = await Axios.get(`${apiUrl}/likes/isLiked/${postId}`, {
+                headers: { accessToken }
+            });
+            
+            const isPostLiked = response.data.isPostLiked;
+            const newLikedState = !isPostLiked;
+    
+            if (newLikedState) {
+                await Axios.post(`${apiUrl}/likes/${postId}`, null, {
+                    headers: { accessToken }
+                });
+                setLikeCounts(prev => ({
+                    ...prev,
+                    [postId]: prev[postId] + 1
+                }));
+            } else {
+                await Axios.delete(`${apiUrl}/likes/${postId}`, {
+                    headers: { accessToken }
+                });
+                setLikeCounts(prev => ({
+                    ...prev,
+                    [postId]: Math.max(prev[postId] - 1, 0)
+                }));
+            }
+            
+            setLikedPosts(prev => ({
+                ...prev,
+                [postId]: newLikedState
+            }));
+            
+        } catch (error) {
+            console.error("Error handling like:", error);
+        }
+    };
+    
+
     if (!user) {
         return <div>Loading...</div>; 
     }
@@ -229,8 +292,19 @@ export const Profile = () => {
                                         <p className="card-text">{post.content}</p>
                                         <div className="d-flex text-muted">
                                             <div className="me-3">
-                                                <i className="bi bi-heart-fill me-1"></i>
-                                                {post.likeCount} Likes
+                                                <i className="bi bi-heart-fill me-1" 
+                                                    style={{ color: likedPosts[post.id] ? 'red' : 'gray' }} 
+                                                    onClick={async (e) => {
+                                                        e.preventDefault();  
+                                                        e.stopPropagation();
+                                                        try {
+                                                            await handleLike(post.id);
+                                                        } catch (error) {
+                                                            console.error('Error handling like:', error);
+                                                        }
+                                                    }}>                                            
+                                                </i>
+                                                {likeCounts[post.id] || 0} Likes
                                             </div>
                                             <div>
                                                 <i className="bi bi-chat-fill me-1"></i>
