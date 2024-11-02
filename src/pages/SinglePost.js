@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Axios from 'axios';
 import { useParams, Link } from 'react-router-dom';
 import { Container, Row, Col, Spinner, Alert, Button, Form } from 'react-bootstrap';
@@ -15,7 +15,9 @@ export const SinglePost = () => {
     const [comment, setComment] = useState('');
     const [liked, setLiked] = useState(false); // Track whether the post is liked
     const [likeCount, setLikeCount] = useState(0); // Track the like count
+    const [submitError, setSubmitError] = useState(''); // for reply section
 
+    const queryClient = useQueryClient();
     const accessToken = sessionStorage.getItem("accessToken");
 
     const { data: postData, isPending, isError } = useQuery({
@@ -53,11 +55,28 @@ export const SinglePost = () => {
         });
     };
 
-    const handleCommentSubmit = (e) => {
+    const handleCommentSubmit = async (e) => {
         e.preventDefault();
-        // Implement your comment submission logic here
-        console.log('Comment submitted:', comment);
-        setComment(''); // Clear the input after submission
+        setSubmitError('');
+
+        try {
+            await Axios.post(`${apiUrl}/replies/${id}`, {
+                postId: id,
+                content: comment
+            }, {
+                headers: {
+                    accessToken: accessToken,
+                },
+            });
+            console.log("Reply added");
+            setComment(''); // Clear the input after successful submission
+            // Invalidate and refetch the post query to show the new comment
+            await queryClient.invalidateQueries(["single post", id]);
+            
+        } catch (error) {
+            console.error("Error replying to post:", error);
+            setSubmitError(error.response?.data?.message || 'Error submitting reply');
+        }
     };
 
     if (isPending) {
