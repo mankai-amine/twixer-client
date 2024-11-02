@@ -20,6 +20,7 @@ export const SinglePost = () => {
     const [likeCount, setLikeCount] = useState(0); // Track the like count
     const [submitError, setSubmitError] = useState(''); // for reply section
     const [isPostOwner, setIsPostOwner] = useState(false); 
+    const [isAdmin, setIsAdmin] = useState(false); 
     const [refresh, setRefresh] = useState(0); // Initialize a state for refresh
 
 
@@ -45,6 +46,10 @@ export const SinglePost = () => {
 
         if (postData && user ) {
         setIsPostOwner(postData.poster.username === user.username);
+        }
+
+        if (user) {
+            setIsAdmin(user.role === "admin");
         }
 
     }, [postData, likeCount, user]);
@@ -172,7 +177,7 @@ export const SinglePost = () => {
                                 <Link to={`/profile/${postData.poster.username}`} className='text-decoration-none text-reset username-link'>
                                     <h5 className="card-title">{postData.poster.username}</h5>
                                 </Link>
-                                {isPostOwner && <DropdownDelete 
+                                { (isPostOwner || isAdmin) && <DropdownDelete 
                                             onDelete={(postId) => {
                                                 handleDelete(postId);
                                             }} 
