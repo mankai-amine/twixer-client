@@ -10,7 +10,9 @@ import { useNavigate } from 'react-router-dom';
 const apiUrl = `${process.env.REACT_APP_API_URL}/posts`;
 
 const postSchema = Yup.object().shape({
-    content: Yup.string().min(10, "Content needs at least 10 characters").max(560, "Content must be less than 560 characters").required('Post content is required'),
+    content: Yup.string().min(10, "Content needs to be at least 10 characters")
+    .max(560, "Content must be less than 560 characters")
+    .required('Post content is required'),
 });
 
 export const CreatePost = () => {
@@ -79,7 +81,7 @@ export const CreatePost = () => {
                                     Create Post
                                 </Button>
 
-                                {isSubmitted && <p className="text-success">Registration successful!</p>}
+                                {isSubmitted && <p className="text-success">Post created</p>}
                             </Form>
                         </div>
                     </Col>
