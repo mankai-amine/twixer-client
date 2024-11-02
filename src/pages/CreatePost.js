@@ -90,5 +90,6 @@ export const CreatePost = () => {
                 </Row>
             </Container>
         </div>
+        </div>
     );
 };
