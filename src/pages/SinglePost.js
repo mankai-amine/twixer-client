@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext, useRef  } from 'react';
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Axios from 'axios';
 import { useParams, Link } from 'react-router-dom';
 import { Container, Row, Col, Spinner, Alert, Button, Form } from 'react-bootstrap';
 import Header from '../components/header';
 import Sidebar from '../components/sidebar';
-
+import { UserContext } from "../helpers/UserContext";
+import { DropdownDelete } from "../components/DropDownDelete";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const apiUrl = `${process.env.REACT_APP_API_URL}`;
@@ -16,9 +17,14 @@ export const SinglePost = () => {
     const [liked, setLiked] = useState(false); // Track whether the post is liked
     const [likeCount, setLikeCount] = useState(0); // Track the like count
     const [submitError, setSubmitError] = useState(''); // for reply section
+    const [isPostOwner, setIsPostOwner] = useState(false); 
+    const [isAdmin, setIsAdmin] = useState(false); 
+    const firstRender = useRef(true); // Initialize ref to track first render
+
 
     const queryClient = useQueryClient();
     const accessToken = sessionStorage.getItem("accessToken");
+    const { user } = useContext(UserContext); 
 
     const postId = id;
 
@@ -30,10 +36,24 @@ export const SinglePost = () => {
     });
 
     useEffect(() => {
-        if (postData && likeCount === 0) {
-            setLikeCount(postData.likeCount || 0); // Initialize likeCount from postData
+        if (postData && firstRender.current) {
+            setLikeCount(postData.likeCount); // Initialize likeCount from postData
+            firstRender.current = false;
         }
-    }, [postData, likeCount]);
+
+        if (postData && user ) {
+        setIsPostOwner(postData.poster.username === user.username);
+        }
+
+        if (user) {
+            setIsAdmin(user.role === "admin");
+        }
+
+    }, [postData, user]);
+    console.log(postData);
+    console.log("first", likeCount);
+
+
 
     useEffect(() => {
         Axios.get(`${apiUrl}/likes/isLiked/${postId}`, {
@@ -47,47 +67,37 @@ export const SinglePost = () => {
         .catch((error) => {
             console.error("Error get isLiked:", error);
         });
-    }, []);
+    }, [postId]);
 
-    console.log(liked);
+    //console.log(liked);
+    console.log(likeCount);
 
     
-    const handleLike = () => {
-        // Toggle the liked state
+    const handleLike = async () => {
         const newLikedState = !liked;
         setLiked(newLikedState);
-
-        if(newLikedState){
-            Axios.post(`${apiUrl}/likes/${postId}`, null, {
-                headers: {
-                    accessToken: accessToken, 
-                },
-            })
-            .then((response) => {
+    
+        try {
+            if (newLikedState) {
+                await Axios.post(`${apiUrl}/likes/${postId}`, null, {
+                    headers: {
+                        accessToken: accessToken,
+                    },
+                });
                 setLikeCount(prevCount => prevCount + 1);
-                console.log(response.data.message); ;
-            })
-            .catch((error) => {
-                console.error("Error liking post:", error);
-                setLiked(false); // Revert back
-            });
-        } else{
-            Axios.delete(`${apiUrl}/likes/${postId}`, {
-                headers: {
-                    accessToken: accessToken, 
-                },
-            })
-            .then((response) => {
-                setLikeCount(prevCount => Math.max(prevCount - 1, 0)); // Ensure it doesn't go below zero
-                console.log(response.data.message); ;
-            })
-            .catch((error) => {
-                console.error("Error unliking post:", error);
-                setLiked(true); // Revert back
-            });
+            } else {
+                await Axios.delete(`${apiUrl}/likes/${postId}`, {
+                    headers: {
+                        accessToken: accessToken,
+                    },
+                });
+                setLikeCount(prevCount => Math.max(prevCount - 1, 0));
+            }
+            
+        } catch (error) {
+            console.error("Error updating like:", error);
+            setLiked(!newLikedState); // Revert the liked state if an error occurs
         }
-        
-        
     };
 
     const handleCommentSubmit = async (e) => {
@@ -113,6 +123,21 @@ export const SinglePost = () => {
             setSubmitError(error.response?.data?.message || 'Error submitting reply');
         }
     };
+
+    const handleDelete = (postId) =>{
+        Axios.patch(`${apiUrl}/posts/${postId}`, null, {
+            headers: {
+                accessToken: accessToken,
+            },
+        })
+        .then(() => {
+            console.log("Post deleted");
+            postData.content="This post was deleted"
+        })
+        .catch((error) => {
+            console.error("Error fetching posts:", error);
+        });
+    }
 
     if (isPending) {
         return (
@@ -140,9 +165,17 @@ export const SinglePost = () => {
                 <div className="container mt-3" style={{ maxWidth: '900px' }}>
                     <div className="card shadow-sm">
                         <div className="card-body">
-                            <Link to={`/profile/${postData.poster.username}`} className='text-decoration-none text-reset username-link'>
-                                <h5 className="card-title">{postData.poster.username}</h5>
-                            </Link>
+                            <div className="d-flex align-items-center justify-content-between mb-2">
+                                <Link to={`/profile/${postData.poster.username}`} className='text-decoration-none text-reset username-link'>
+                                    <h5 className="card-title">{postData.poster.username}</h5>
+                                </Link>
+                                { (isPostOwner || isAdmin) && <DropdownDelete 
+                                            onDelete={(postId) => {
+                                                handleDelete(postId);
+                                            }} 
+                                            postId={postData.id} 
+                                />}
+                            </div>
                             <p className="card-text">{postData.content}</p>
                             <div className="d-flex justify-content-between align-items-center mb-2">
                                 <div className="d-flex text-muted">
