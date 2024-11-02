@@ -22,8 +22,8 @@ export const DropdownDelete = ({ onDelete, postId }) => {
                 <li>
                     <button
                         className="dropdown-item text-danger"
-                        onClick={(event) => {
-                            event.stopPropagation(); // Prevent click from reaching card
+                        onClick={() => {
+                            //event.stopPropagation(); // Prevent click from reaching card
                             onDelete(postId)}
                         }
                     >
