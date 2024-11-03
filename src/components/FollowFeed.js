@@ -127,10 +127,22 @@ const FollowFeed = () => {
                 endMessage={<p className='text-center'>No more posts to show</p>}
             >
                 {posts.map((post, index) => (
-                    <Link to={`/post/${post.id}`} key={post.id || index}  className="text-decoration-none text-reset">
+                    <Link to={`/post/${post.id}`} key={post.id || index}  className="text-decoration-none text-reset ">
                         <Card  className='mb-3'>
                             <Card.Body>
-                                <Card.Title>{post.poster.username}</Card.Title>
+                                <Card.Title>
+                                    <Link to={`/profile/${post.poster.username}`} className='text-decoration-none text-reset username-link'>
+                                        {post.poster.username} 
+                                    </Link>
+                                    {post.originalPost && (
+                                        <>
+                                            <span> reposted </span>
+                                            <Link to={`/profile/${post.originalPost.poster.username}`} className='text-decoration-none text-reset username-link'>
+                                                {post.originalPost.poster.username}
+                                            </Link>
+                                        </>
+                                    )}
+                                </Card.Title>
                                 <Card.Text>{post.content}</Card.Text>
                                 <div className="d-flex text-muted">
                                     <div className="me-3">

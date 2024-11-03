@@ -15,6 +15,8 @@ export const Profile = () => {
     const [isFollowing, setIsFollowing] = useState(false);
     const [likedPosts, setLikedPosts] = useState({}); // Track liked state for each post
     const [likeCounts, setLikeCounts] = useState({}); // Track like count for each post
+    const [repostedPosts, setRepostedPosts] = useState({}); 
+    const [repostCounts, setRepostCounts] = useState({}); 
 
 
     useEffect(() => {
@@ -158,11 +160,15 @@ export const Profile = () => {
     useEffect(() => {
         const newLikedPosts = {};
         const newLikeCounts = {};
+        const newRepostCounts = {};
         
         posts.forEach(post => {
             // Initialize like counts
             newLikeCounts[post.id] = post.likeCount;
-            
+
+            // Initialize repost counts
+            newRepostCounts[post.id] = post.repostCount;
+
             // Check if each post is liked
             Axios.get(`${apiUrl}/likes/isLiked/${post.id}`, {
                 headers: { accessToken }
@@ -174,10 +180,26 @@ export const Profile = () => {
                 }));
             })
             .catch(error => console.error("Error checking like status:", error));
+
+            // Check if each post has been reposted
+            Axios.get(`${apiUrl}/posts/isReposted/${post.id}`, {
+                headers: { accessToken }
+            })
+            .then(response => {
+                setRepostedPosts(prev => ({
+                    ...prev,
+                    [post.id]: response.data.isReposted
+                }));
+            })
+            .catch(error => console.error("Error checking repost status:", error));
         });
         
         setLikeCounts(newLikeCounts);
+        setRepostCounts(newRepostCounts);
     }, [posts]);
+
+    console.log("like count", likeCounts);
+    console.log("rep count", repostCounts);
 
     const handleLike = async (postId) => {
         try {
@@ -280,6 +302,7 @@ export const Profile = () => {
                                     <div className="d-flex align-items-center justify-content-between mb-2">
                                         <h5 className="card-title mb-0">
                                             {post.poster.username}
+                                            {post.originalPost ? ` reposted ${post.originalPost.poster.username}` : ''}
                                         </h5>
                                         {isSameUsername && <DropdownDelete 
                                             onDelete={(postId) => {
@@ -309,6 +332,13 @@ export const Profile = () => {
                                             <div>
                                                 <i className="bi bi-chat-fill me-1"></i>
                                                 {post.replies.length} Replies
+                                            </div>
+                                            <div>
+                                                <i className="bi bi-arrow-repeat me-1 ms-3" 
+                                                    style={{ color: repostedPosts[post.id] ? 'DodgerBlue' : 'gray', fontWeight: 'bold' }}
+                                                    //onClick={handleRepost}
+                                                ></i>
+                                                {repostCounts[post.id]} Reposts
                                             </div>
                                         </div>
                                     </Link>

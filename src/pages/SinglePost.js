@@ -211,9 +211,19 @@ export const SinglePost = () => {
                     <div className="card shadow-sm">
                         <div className="card-body">
                             <div className="d-flex align-items-center justify-content-between mb-2">
-                                <Link to={`/profile/${postData.poster.username}`} className='text-decoration-none text-reset username-link'>
-                                    <h5 className="card-title">{postData.poster.username}</h5>
-                                </Link>
+                                <div>
+                                    <Link to={`/profile/${postData.poster.username}`} className='text-decoration-none text-reset username-link'>
+                                        {postData.poster.username} 
+                                    </Link>
+                                    {postData.originalPost && (
+                                        <>
+                                            <span> reposted </span>
+                                            <Link to={`/profile/${postData.originalPost.poster.username}`} className='text-decoration-none text-reset username-link'>
+                                                {postData.originalPost.poster.username}
+                                            </Link>
+                                        </>
+                                    )}
+                                </div>
                                 { (isPostOwner || isAdmin) && <DropdownDelete 
                                             onDelete={(postId) => {
                                                 handleDelete(postId);
