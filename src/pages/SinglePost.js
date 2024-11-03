@@ -139,6 +139,21 @@ export const SinglePost = () => {
         });
     }
 
+    const handleReplyDelete = (postId) =>{
+        Axios.patch(`${apiUrl}/replies/${postId}`, null, {
+            headers: {
+                accessToken: accessToken,
+            },
+        })
+        .then(() => {
+            console.log("Reply deleted");
+            postData.content="This reply was deleted"
+        })
+        .catch((error) => {
+            console.error("Error fetching replies:", error);
+        });
+    }
+
     if (isPending) {
         return (
             <Container className="text-center mt-5">
@@ -213,7 +228,16 @@ export const SinglePost = () => {
                         <ul className="list-group">
                             {postData.replies.map((reply, index) => (
                                 <li key={index} className="list-group-item">
+                                    <span><h4>{reply.replier.username} says:</h4>
+                                    { ((reply.replier.username === user.username) || isAdmin) && <DropdownDelete 
+                                            onDelete={(postId) => {
+                                                handleReplyDelete(postId);
+                                            }} 
+                                            postId={reply.id} 
+                                />}
+                                </span>
                                     {reply.content}
+                                    <span>{reply.likeCount}</span>
                                 </li>
                             ))}
                         </ul>
