@@ -146,9 +146,10 @@ export const SinglePost = () => {
                 accessToken: accessToken,
             },
         })
-        .then(() => {
+        .then(async () => {
             console.log("Reply deleted");
             postData.content="This reply was deleted"
+            await queryClient.invalidateQueries(["single post", id]);
         })
         .catch((error) => {
             console.error("Error fetching replies:", error);
