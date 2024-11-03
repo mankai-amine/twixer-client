@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext, useRef  } from 'react';
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Axios from 'axios';
 import { useParams, Link } from 'react-router-dom';
-import { Container, Row, Col, Spinner, Alert, Button, Form } from 'react-bootstrap';
+import { Container, Spinner, Alert } from 'react-bootstrap';
 import Header from '../components/header';
 import Sidebar from '../components/sidebar';
 import { UserContext } from "../helpers/UserContext";
@@ -139,8 +139,9 @@ export const SinglePost = () => {
         });
     }
 
-    const handleReplyDelete = (postId) =>{
-        Axios.patch(`${apiUrl}/replies/${postId}`, null, {
+    const handleReplyDelete = (replyId) =>{
+        console.log("entering delete reply");
+        Axios.patch(`${apiUrl}/replies/${replyId}`, null, {
             headers: {
                 accessToken: accessToken,
             },
@@ -187,8 +188,9 @@ export const SinglePost = () => {
                                 { (isPostOwner || isAdmin) && <DropdownDelete 
                                             onDelete={(postId) => {
                                                 handleDelete(postId);
-                                            }} 
-                                            postId={postData.id} 
+                                            }}
+                                            contentId={postData.id}
+                                            contentType={"post"} 
                                 />}
                             </div>
                             <p className="card-text">{postData.content}</p>
@@ -228,16 +230,19 @@ export const SinglePost = () => {
                         <ul className="list-group">
                             {postData.replies.map((reply, index) => (
                                 <li key={index} className="list-group-item">
-                                    <span><h4>{reply.replier.username} says:</h4>
+                                    <div className="d-flex align-items-center justify-content-between mb-2">
+                                    <h4>{reply.replier.username} says:</h4>
                                     { ((reply.replier.username === user.username) || isAdmin) && <DropdownDelete 
-                                            onDelete={(postId) => {
-                                                handleReplyDelete(postId);
+                                            onDelete={(replyId) => {
+                                                handleReplyDelete(replyId);
                                             }} 
-                                            postId={reply.id} 
-                                />}
-                                </span>
+                                            contentId={reply.id}
+                                            contentType={"reply"}
+                                    />}
+                                    </div>
                                     {reply.content}
                                     <span>{reply.likeCount}</span>
+                                    
                                 </li>
                             ))}
                         </ul>
