@@ -297,13 +297,22 @@ export const Profile = () => {
     
                         {/* Posts */}
                         {posts.map((post) => (
-                            <Card key={post.id} className="mb-3 shadow-sm" style={{ backgroundColor: '#EFEFEF' }}>
+                            <Card key={post.id} className="mb-3 shadow-sm">
                                 <Card.Body>
                                     <div className="d-flex align-items-center justify-content-between mb-2">
-                                        <h5 className="card-title mb-0">
-                                            {post.poster.username}
-                                            {post.originalPost ? ` reposted ${post.originalPost.poster.username}` : ''}
-                                        </h5>
+                                        <div>
+                                            <Link to={`/profile/${post.poster.username}`} className='text-decoration-none text-reset username-link'>
+                                                {post.poster.username} 
+                                            </Link>
+                                            {post.originalPost && (
+                                                <>
+                                                    <span> reposted </span>
+                                                    <Link to={`/profile/${post.originalPost.poster.username}`} className='text-decoration-none text-reset username-link'>
+                                                        {post.originalPost.poster.username}
+                                                    </Link>
+                                                </>
+                                            )}
+                                        </div>
                                         {isSameUsername && <DropdownDelete 
                                             onDelete={(postId) => {
                                                 handleDelete(postId);
@@ -343,6 +352,9 @@ export const Profile = () => {
                                         </div>
                                     </Link>
                                 </Card.Body>
+                                <Card.Footer className='text-muted'>
+                                        {new Date(post.date).toLocaleString()}
+                                </Card.Footer>
                             </Card>
                         ))} 
                     </Col>
