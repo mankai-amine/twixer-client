@@ -80,6 +80,18 @@ const FollowFeed = () => {
                 }));
             })
             .catch(error => console.error("Error checking like status:", error));
+
+            // Check if each post has been reposted
+            Axios.get(`${apiUrl2}/posts/isReposted/${post.id}`, {
+                headers: { accessToken }
+            })
+            .then(response => {
+                setRepostedPosts(prev => ({
+                    ...prev,
+                    [post.id]: response.data.isReposted
+                }));
+            })
+            .catch(error => console.error("Error checking repost status:", error));
         });
         
         setLikeCounts(newLikeCounts);
