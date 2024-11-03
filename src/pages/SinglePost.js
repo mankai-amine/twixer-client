@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext, useRef  } from 'react';
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Axios from 'axios';
 import { useParams, Link } from 'react-router-dom';
 import { Container, Row, Col, Spinner, Alert, Button, Form } from 'react-bootstrap';
 import Header from '../components/header';
 import Sidebar from '../components/sidebar';
-
+import { UserContext } from "../helpers/UserContext";
+import { DropdownDelete } from "../components/DropDownDelete";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const apiUrl = `${process.env.REACT_APP_API_URL}`;
@@ -16,9 +17,16 @@ export const SinglePost = () => {
     const [liked, setLiked] = useState(false); // Track whether the post is liked
     const [likeCount, setLikeCount] = useState(0); // Track the like count
     const [submitError, setSubmitError] = useState(''); // for reply section
+    const [isPostOwner, setIsPostOwner] = useState(false); 
+    const [isAdmin, setIsAdmin] = useState(false); 
+    const firstRender = useRef(true); // Initialize ref to track first render
+
 
     const queryClient = useQueryClient();
     const accessToken = sessionStorage.getItem("accessToken");
+    const { user } = useContext(UserContext); 
+
+    const postId = id;
 
     const { data: postData, isPending, isError } = useQuery({
         queryKey: ["single post", id],
@@ -27,32 +35,69 @@ export const SinglePost = () => {
         }
     });
 
-    const handleLike = () => {
-        // Toggle the liked state
-        const newLikedState = !liked;
-        setLiked(newLikedState);
-        
-        // Update like count based on the new liked state
-        const newLikeCount = newLikedState ? likeCount + 1 : Math.max(likeCount - 1, 0);
-        setLikeCount(newLikeCount);
-        
-        // Send a request to the server to update the like status
-        Axios.post(`${apiUrl}/likes/${id}`, {
-            postId: id,
-        }, {
+    useEffect(() => {
+        if (postData && firstRender.current) {
+            setLikeCount(postData.likeCount); // Initialize likeCount from postData
+            firstRender.current = false;
+        }
+
+        if (postData && user ) {
+        setIsPostOwner(postData.poster.username === user.username);
+        }
+
+        if (user) {
+            setIsAdmin(user.role === "admin");
+        }
+
+    }, [postData, user]);
+    console.log(postData);
+    console.log("first", likeCount);
+
+
+
+    useEffect(() => {
+        Axios.get(`${apiUrl}/likes/isLiked/${postId}`, {
             headers: {
-                accessToken: accessToken, // Ensure this is defined
+                accessToken: accessToken, 
             },
         })
-        .then(() => {
-            console.log("Like status updated successfully");
+        .then((response) => {
+            setLiked(response.data.isPostLiked) ;
         })
         .catch((error) => {
-            console.error("Error liking post:", error);
-            // Optionally, revert the like state if there's an error
-            setLiked(!newLikedState); // Revert back
-            setLikeCount(newLikedState ? newLikeCount - 1 : newLikeCount + 1); // Adjust count back
+            console.error("Error get isLiked:", error);
         });
+    }, [postId]);
+
+    //console.log(liked);
+    console.log(likeCount);
+
+    
+    const handleLike = async () => {
+        const newLikedState = !liked;
+        setLiked(newLikedState);
+    
+        try {
+            if (newLikedState) {
+                await Axios.post(`${apiUrl}/likes/${postId}`, null, {
+                    headers: {
+                        accessToken: accessToken,
+                    },
+                });
+                setLikeCount(prevCount => prevCount + 1);
+            } else {
+                await Axios.delete(`${apiUrl}/likes/${postId}`, {
+                    headers: {
+                        accessToken: accessToken,
+                    },
+                });
+                setLikeCount(prevCount => Math.max(prevCount - 1, 0));
+            }
+            
+        } catch (error) {
+            console.error("Error updating like:", error);
+            setLiked(!newLikedState); // Revert the liked state if an error occurs
+        }
     };
 
     const handleCommentSubmit = async (e) => {
@@ -78,6 +123,21 @@ export const SinglePost = () => {
             setSubmitError(error.response?.data?.message || 'Error submitting reply');
         }
     };
+
+    const handleDelete = (postId) =>{
+        Axios.patch(`${apiUrl}/posts/${postId}`, null, {
+            headers: {
+                accessToken: accessToken,
+            },
+        })
+        .then(() => {
+            console.log("Post deleted");
+            postData.content="This post was deleted"
+        })
+        .catch((error) => {
+            console.error("Error fetching posts:", error);
+        });
+    }
 
     if (isPending) {
         return (
@@ -105,9 +165,17 @@ export const SinglePost = () => {
                 <div className="container mt-3" style={{ maxWidth: '900px' }}>
                     <div className="card shadow-sm">
                         <div className="card-body">
-                            <Link to={`/profile/${postData.poster.username}`} className='text-decoration-none text-reset username-link'>
-                                <h5 className="card-title">{postData.poster.username}</h5>
-                            </Link>
+                            <div className="d-flex align-items-center justify-content-between mb-2">
+                                <Link to={`/profile/${postData.poster.username}`} className='text-decoration-none text-reset username-link'>
+                                    <h5 className="card-title">{postData.poster.username}</h5>
+                                </Link>
+                                { (isPostOwner || isAdmin) && <DropdownDelete 
+                                            onDelete={(postId) => {
+                                                handleDelete(postId);
+                                            }} 
+                                            postId={postData.id} 
+                                />}
+                            </div>
                             <p className="card-text">{postData.content}</p>
                             <div className="d-flex justify-content-between align-items-center mb-2">
                                 <div className="d-flex text-muted">
