@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Table, Pagination, Button, Row, Col } from 'react-bootstrap';
+import { Container, Table, Pagination, Button, Row, Col, Form } from 'react-bootstrap';
 import axios from 'axios';
 import Header from '../components/header';
 import Sidebar from '../components/sidebar';
@@ -14,6 +14,9 @@ const AdminUserList = () => {
     const usersPerPage = 10;
     const apiUrl1 = `${process.env.REACT_APP_API_URL}/users/all`;
     const apiUrlBan = `${process.env.REACT_APP_API_URL}/users/status`; // Ban + Unban endpoint URL
+    const apiUrlRole = `${process.env.REACT_APP_API_URL}/users/role`;
+
+    const roles = ["user", "admin"];
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -71,6 +74,21 @@ const AdminUserList = () => {
         }
     };
 
+    const handleRoleChange = async (userId, newRole) => {
+        try {
+            await axios.patch(`${apiUrlRole}/${userId}`, { role: newRole }, {
+                headers: {
+                    accessToken: sessionStorage.getItem("accessToken"),
+                },
+            });
+            setUsers(users.map(user => user.id === userId ? { ...user, role: newRole } : user));
+        } catch (error) {
+            console.error(`Failed to update role: ${error.response?.data?.message || error.message}`);
+            alert(`Failed to update role: ${error.response?.data?.message || error.message}`);
+        }
+    };
+    
+
     const handlePageChange = (page) => setCurrentPage(page);
 
     return (
@@ -113,7 +131,16 @@ const AdminUserList = () => {
                                                     <td>{user.id}</td>
                                                     <td>{user.username}</td>
                                                     <td>{user.email}</td>
-                                                    <td>{user.role}</td>
+                                                    <td>
+                                                        <Form.Select
+                                                            value={user.role}
+                                                            onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                                                        >
+                                                            {roles.map((role) => (
+                                                                <option key={role} value={role}>{role}</option>
+                                                            ))}
+                                                        </Form.Select>
+                                                    </td>
                                                     <td>{user.account_status}</td>
                                                     <td>{user.bio}</td>
                                                     <td>{new Date(user.creation_date).toLocaleDateString()}</td>
