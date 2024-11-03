@@ -11,6 +11,8 @@ const FollowFeed = () => {
     const [hasMore, setHasMore] = useState(true);
     const [likedPosts, setLikedPosts] = useState({}); 
     const [likeCounts, setLikeCounts] = useState({}); 
+    const [repostedPosts, setRepostedPosts] = useState({}); 
+    const [repostCounts, setRepostCounts] = useState({}); 
     
     const apiUrl = `${process.env.REACT_APP_API_URL}/posts/followFeed`;
     const apiUrl2 = process.env.REACT_APP_API_URL;
@@ -58,10 +60,14 @@ const FollowFeed = () => {
     useEffect(() => {
         const newLikedPosts = {};
         const newLikeCounts = {};
+        const newRepostCounts = {};
         
         posts.forEach(post => {
             // Initialize like counts
             newLikeCounts[post.id] = post.likeCount;
+
+             // Initialize repost counts
+             newRepostCounts[post.id] = post.repostCount;
             
             // Check if each post is liked
             Axios.get(`${apiUrl2}/likes/isLiked/${post.id}`, {
@@ -77,6 +83,7 @@ const FollowFeed = () => {
         });
         
         setLikeCounts(newLikeCounts);
+        setRepostCounts(newRepostCounts);
     }, [posts]);
 
     const handleLike = async (postId) => {
@@ -163,6 +170,13 @@ const FollowFeed = () => {
                                     <div>
                                         <i className="bi bi-chat-fill me-1"></i>
                                         {post.replies.length} Replies
+                                    </div>
+                                    <div>
+                                        <i className="bi bi-arrow-repeat me-1 ms-3" 
+                                            style={{ color: repostedPosts[post.id] ? 'DodgerBlue' : 'gray', fontWeight: 'bold' }}
+                                            //onClick={handleRepost}
+                                        ></i>
+                                        {repostCounts[post.id]} Reposts
                                     </div>
                                 </div>
                             </Card.Body>
