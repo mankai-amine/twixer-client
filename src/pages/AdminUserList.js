@@ -1,19 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Table, Pagination, Button, Row, Col } from 'react-bootstrap';
+import { Container, Table, Pagination, Button, Row, Col, Form } from 'react-bootstrap';
 import axios from 'axios';
 import Header from '../components/header';
 import Sidebar from '../components/sidebar';
 
 const AdminUserList = () => {
-    const [users, setUsers] = useState([]); // Initialize as an empty array
+    const [users, setUsers] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [totalUsers, setTotalUsers] = useState(0);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null); // For error handling
 
     const usersPerPage = 10;
     const apiUrl1 = `${process.env.REACT_APP_API_URL}/users/all`;
-    const apiUrlBan = `${process.env.REACT_APP_API_URL}/users/status`; // Ban + Unban endpoint URL
+    const apiUrlBan = `${process.env.REACT_APP_API_URL}/users/status`;
+    const apiUrlRole = `${process.env.REACT_APP_API_URL}/users/role`;
+
+    const roles = ["user", "admin"];
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -29,8 +33,11 @@ const AdminUserList = () => {
                         limit: usersPerPage,
                     },
                 });
-                setUsers(response.data || []);
-                setTotalPages(response.data.totalPages || 1);
+                
+                const { data, pagination } = response.data;
+                setUsers(data || []);
+                setTotalUsers(pagination.totalCount);
+                setTotalPages(pagination.totalPages);
             } catch (error) {
                 setError(`Failed to fetch users: ${error.response?.data?.error || error.message}`);
                 setUsers([]);
@@ -71,21 +78,82 @@ const AdminUserList = () => {
         }
     };
 
-    const handlePageChange = (page) => setCurrentPage(page);
+    const handleRoleChange = async (userId, newRole) => {
+        try {
+            await axios.patch(`${apiUrlRole}/${userId}`, { role: newRole }, {
+                headers: {
+                    accessToken: sessionStorage.getItem("accessToken"),
+                },
+            });
+            setUsers(users.map(user => user.id === userId ? { ...user, role: newRole } : user));
+        } catch (error) {
+            console.error(`Failed to update role: ${error.response?.data?.message || error.message}`);
+            alert(`Failed to update role: ${error.response?.data?.message || error.message}`);
+        }
+    };
+
+    const renderPaginationItems = () => {
+        const items = [];
+        const maxVisiblePages = 5;
+
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+        if (endPage - startPage + 1 < maxVisiblePages) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+
+        if (startPage > 1) {
+            items.push(
+                <Pagination.Item key={1} onClick={() => setCurrentPage(1)}>
+                    1
+                </Pagination.Item>
+            );
+            if (startPage > 2) {
+                items.push(<Pagination.Ellipsis key="ellipsis1" />);
+            }
+        }
+
+        for (let page = startPage; page <= endPage; page++) {
+            items.push(
+                <Pagination.Item
+                    key={page}
+                    active={page === currentPage}
+                    onClick={() => setCurrentPage(page)}
+                >
+                    {page}
+                </Pagination.Item>
+            );
+        }
+
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                items.push(<Pagination.Ellipsis key="ellipsis2" />);
+            }
+            items.push(
+                <Pagination.Item
+                    key={totalPages}
+                    onClick={() => setCurrentPage(totalPages)}
+                >
+                    {totalPages}
+                </Pagination.Item>
+            );
+        }
+
+        return items;
+    };
+    
 
     return (
         <div>
             <Header />
             <Container fluid className="mt-4">
                 <Row>
-                    {/* Sidebar Section */}
                     <Col md={3} lg={2} className="px-0">
                         <Sidebar />
                     </Col>
-
-                    {/* Main Content Section */}
                     <Col md={9} lg={10}>
-                        <h2>User List</h2>
+                        <h2 className="text-center">User List</h2>
 
                         {loading ? (
                             <p>Loading users...</p>
@@ -113,7 +181,16 @@ const AdminUserList = () => {
                                                     <td>{user.id}</td>
                                                     <td>{user.username}</td>
                                                     <td>{user.email}</td>
-                                                    <td>{user.role}</td>
+                                                    <td>
+                                                        <Form.Select
+                                                            value={user.role}
+                                                            onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                                                        >
+                                                            {roles.map((role) => (
+                                                                <option key={role} value={role}>{role}</option>
+                                                            ))}
+                                                        </Form.Select>
+                                                    </td>
                                                     <td>{user.account_status}</td>
                                                     <td>{user.bio}</td>
                                                     <td>{new Date(user.creation_date).toLocaleDateString()}</td>
@@ -138,22 +215,30 @@ const AdminUserList = () => {
                                         )}
                                     </tbody>
                                 </Table>
-
-                                <Pagination className="justify-content-center mt-3">
-                                    <Pagination.First onClick={() => handlePageChange(1)} disabled={currentPage === 1} />
-                                    <Pagination.Prev onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} />
-                                    {[...Array(totalPages)].map((_, i) => (
-                                        <Pagination.Item
-                                            key={i + 1}
-                                            active={i + 1 === currentPage}
-                                            onClick={() => handlePageChange(i + 1)}
-                                        >
-                                            {i + 1}
-                                        </Pagination.Item>
-                                    ))}
-                                    <Pagination.Next onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} />
-                                    <Pagination.Last onClick={() => handlePageChange(totalPages)} disabled={currentPage === totalPages} />
-                                </Pagination>
+                                <div className="d-flex flex-column align-items-center mb-4">
+                                    <div className="mb-2">
+                                        Showing {(currentPage - 1) * usersPerPage + 1} - {Math.min(currentPage * usersPerPage, totalUsers)} of {totalUsers} users
+                                    </div>
+                                    <Pagination>
+                                        <Pagination.First
+                                            onClick={() => setCurrentPage(1)}
+                                            disabled={currentPage === 1}
+                                        />
+                                        <Pagination.Prev
+                                            onClick={() => setCurrentPage(currentPage - 1)}
+                                            disabled={currentPage === 1}
+                                        />
+                                        {renderPaginationItems()}
+                                        <Pagination.Next
+                                            onClick={() => setCurrentPage(currentPage + 1)}
+                                            disabled={currentPage === totalPages}
+                                        />
+                                        <Pagination.Last
+                                            onClick={() => setCurrentPage(totalPages)}
+                                            disabled={currentPage === totalPages}
+                                        />
+                                    </Pagination>
+                                </div>
                             </>
                         )}
                     </Col>
