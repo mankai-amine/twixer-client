@@ -8,7 +8,6 @@ import FlashMessage from '../helpers/FlashMessage';
 
 const apiUrl = `${process.env.REACT_APP_API_URL}/users`;
 
-// TODO min and max ranges, regex
 const registerSchema = Yup.object().shape({
     username: Yup.string().required('Username is required'),
     email: Yup.string().required('Email is required').email('Email is invalid'),
@@ -30,7 +29,6 @@ const Register = () => {
 
     const showFlash = (message, type) => {
         setFlash({ show: true, message, type });
-        // Auto hide after 3 seconds
         setTimeout(() => {
             setFlash({ show: false, message: '', type: '' });
         }, 3000);

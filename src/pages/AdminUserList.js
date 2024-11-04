@@ -11,7 +11,7 @@ const AdminUserList = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [totalUsers, setTotalUsers] = useState(0);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null); // For error handling
+    const [error, setError] = useState(null); 
     const [flash, setFlash] = useState({ show: false, message: '', type: '' });
 
     const usersPerPage = 10;

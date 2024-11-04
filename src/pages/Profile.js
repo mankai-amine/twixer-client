@@ -13,8 +13,8 @@ export const Profile = () => {
     const { user } = useContext(UserContext); 
     const [currUsername, setCurrUsername] = useState("");
     const [isFollowing, setIsFollowing] = useState(false);
-    const [likedPosts, setLikedPosts] = useState({}); // Track liked state for each post
-    const [likeCounts, setLikeCounts] = useState({}); // Track like count for each post
+    const [likedPosts, setLikedPosts] = useState({}); 
+    const [likeCounts, setLikeCounts] = useState({}); 
     const [repostedPosts, setRepostedPosts] = useState({}); 
     const [repostCounts, setRepostCounts] = useState({}); 
 
@@ -412,24 +412,3 @@ export const Profile = () => {
     </div>
     );
 };
-
-
-
-/*useEffect(() => {
-        if(id){
-            Axios.get(`${apiUrl}/posts/profilePage/${id}`, {
-                headers: {
-                    accessToken: accessToken,
-                },
-            })
-            .then((response) => {
-                setPosts(response.data);
-            })
-            .catch((error) => {
-                console.error("Error fetching posts:", error);
-            });
-        }
-        
-    }, [id]);*/
-
-    //console.log(posts);

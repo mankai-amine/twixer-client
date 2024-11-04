@@ -12,7 +12,7 @@ import { Container, Form, Button, Row, Col } from 'react-bootstrap';
 import Header from '../components/header';
 import Sidebar from '../components/sidebar';
 
-// Define the form schema with Yup
+
 const schema = Yup.object().shape({
     email: Yup.string()
       .email("Invalid email")

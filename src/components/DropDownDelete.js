@@ -2,7 +2,7 @@ import React from 'react';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
-// contentId can be passed either a post or reply id
+
 export const DropdownDelete = ({ onDelete, contentId, contentType }) => {
     return (
         <div className="dropdown">
@@ -23,7 +23,6 @@ export const DropdownDelete = ({ onDelete, contentId, contentType }) => {
                     <button
                         className="dropdown-item text-danger"
                         onClick={() => {
-                            //event.stopPropagation(); // Prevent click from reaching card
                             onDelete(contentId)}
                         }
                     >
