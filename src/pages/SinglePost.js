@@ -120,9 +120,7 @@ export const SinglePost = () => {
     
         try {
             if (newRepostedState) {
-                await Axios.post(`${apiUrl}/posts/reposts/${postId}`, {
-                    content: postData.content
-                }, 
+                await Axios.post(`${apiUrl}/posts/reposts/${postId}`, 
                 {
                     headers: {
                         accessToken: accessToken,
