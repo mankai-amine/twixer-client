@@ -15,6 +15,8 @@ export const Profile = () => {
     const [isFollowing, setIsFollowing] = useState(false);
     const [likedPosts, setLikedPosts] = useState({}); // Track liked state for each post
     const [likeCounts, setLikeCounts] = useState({}); // Track like count for each post
+    const [repostedPosts, setRepostedPosts] = useState({}); 
+    const [repostCounts, setRepostCounts] = useState({}); 
 
 
     useEffect(() => {
@@ -158,11 +160,15 @@ export const Profile = () => {
     useEffect(() => {
         const newLikedPosts = {};
         const newLikeCounts = {};
+        const newRepostCounts = {};
         
         posts.forEach(post => {
             // Initialize like counts
             newLikeCounts[post.id] = post.likeCount;
-            
+
+            // Initialize repost counts
+            newRepostCounts[post.id] = post.repostCount;
+
             // Check if each post is liked
             Axios.get(`${apiUrl}/likes/isLiked/${post.id}`, {
                 headers: { accessToken }
@@ -174,10 +180,26 @@ export const Profile = () => {
                 }));
             })
             .catch(error => console.error("Error checking like status:", error));
+
+            // Check if each post has been reposted
+            Axios.get(`${apiUrl}/posts/isReposted/${post.id}`, {
+                headers: { accessToken }
+            })
+            .then(response => {
+                setRepostedPosts(prev => ({
+                    ...prev,
+                    [post.id]: response.data.isReposted
+                }));
+            })
+            .catch(error => console.error("Error checking repost status:", error));
         });
         
         setLikeCounts(newLikeCounts);
+        setRepostCounts(newRepostCounts);
     }, [posts]);
+
+    console.log("like count", likeCounts);
+    console.log("rep count", repostCounts);
 
     const handleLike = async (postId) => {
         try {
@@ -210,6 +232,46 @@ export const Profile = () => {
                 ...prev,
                 [postId]: newLikedState
             }));
+            
+        } catch (error) {
+            console.error("Error handling like:", error);
+        }
+    };
+
+    const handleRepost = async (postId) => {
+        try {
+            const response = await Axios.get(`${apiUrl}/posts/isReposted/${postId}`, {
+                headers: { accessToken }
+            });
+            
+            const isReposted = response.data.isReposted;
+            const newRepostedState = !isReposted;
+    
+            if (newRepostedState) {
+                await Axios.post(`${apiUrl}/posts/reposts/${postId}`, null, 
+                {
+                    headers: { accessToken }
+                });
+                setRepostCounts(prev => ({
+                    ...prev,
+                    [postId]: prev[postId] + 1
+                }));
+            } else {
+                await Axios.delete(`${apiUrl}/posts/reposts/${postId}`, {
+                    headers: { accessToken }
+                });
+                setRepostCounts(prev => ({
+                    ...prev,
+                    [postId]: Math.max(prev[postId] - 1, 0)
+                }));
+            }
+            
+            setRepostedPosts(prev => ({
+                ...prev,
+                [postId]: newRepostedState
+            }));
+
+            window.location.reload();
             
         } catch (error) {
             console.error("Error handling like:", error);
@@ -275,12 +337,22 @@ export const Profile = () => {
     
                         {/* Posts */}
                         {posts.map((post) => (
-                            <Card key={post.id} className="mb-3 shadow-sm" style={{ backgroundColor: '#EFEFEF' }}>
+                            <Card key={post.id} className="mb-3 shadow-sm">
                                 <Card.Body>
                                     <div className="d-flex align-items-center justify-content-between mb-2">
-                                        <h5 className="card-title mb-0">
-                                            {post.poster.username}
-                                        </h5>
+                                        <div>
+                                            <Link to={`/profile/${post.poster.username}`} className='text-decoration-none text-reset username-link'>
+                                                {post.poster.username} 
+                                            </Link>
+                                            {post.originalPost && (
+                                                <>
+                                                    <span> reposted </span>
+                                                    <Link to={`/profile/${post.originalPost.poster.username}`} className='text-decoration-none text-reset username-link'>
+                                                        {post.originalPost.poster.username}
+                                                    </Link>
+                                                </>
+                                            )}
+                                        </div>
                                         {isSameUsername && <DropdownDelete 
                                             onDelete={(postId) => {
                                                 handleDelete(postId);
@@ -310,9 +382,27 @@ export const Profile = () => {
                                                 <i className="bi bi-chat-fill me-1"></i>
                                                 {post.replies.length} Replies
                                             </div>
+                                            <div>
+                                                <i className="bi bi-arrow-repeat me-1 ms-3" 
+                                                    style={{ color: repostedPosts[post.id] ? 'DodgerBlue' : 'gray', fontWeight: 'bold' }}
+                                                    onClick={async (e) => {
+                                                        e.preventDefault();  
+                                                        e.stopPropagation();
+                                                        try {
+                                                            await handleRepost(post.id);
+                                                        } catch (error) {
+                                                            console.error('Error handling repost:', error);
+                                                        }
+                                                    }}
+                                                ></i>
+                                                {repostCounts[post.id]} Reposts
+                                            </div>
                                         </div>
                                     </Link>
                                 </Card.Body>
+                                <Card.Footer className='text-muted'>
+                                        {new Date(post.date).toLocaleString()}
+                                </Card.Footer>
                             </Card>
                         ))} 
                     </Col>

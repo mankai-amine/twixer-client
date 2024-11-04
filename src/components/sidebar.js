@@ -31,10 +31,11 @@ const Sidebar = () => {
     };
 
     const navItems = [
-        { path: '/createpost', label: 'Make Post' },
+        { path: '/createpost', label: 'Create Post' },
         { path: `/profile/${username}`, label: 'Profile' },
         { path: '/', label: 'Home' },
         { path: '/following', label: 'Following' },
+        { path: '/account', label: 'Account' }
     ];
 
     return (
