@@ -221,7 +221,7 @@ export const SinglePost = () => {
     return (
         <>
             <Header />
-            <div className="d-flex" style={{ backgroundColor: '#abcdef', minHeight: '100vh' }}> 
+            <div className="d-flex" style={{ backgroundColor: '#e3eef8', minHeight: '100vh' }}> 
                 <Sidebar />
                 <div className="container mt-3" style={{ maxWidth: '900px' }}>
                     <div className="card shadow-sm">
