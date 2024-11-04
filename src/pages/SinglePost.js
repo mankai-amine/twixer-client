@@ -16,6 +16,8 @@ export const SinglePost = () => {
     const [comment, setComment] = useState('');
     const [liked, setLiked] = useState(false); // Track whether the post is liked
     const [likeCount, setLikeCount] = useState(0); // Track the like count
+    const [reposted, setReposted] = useState(false); 
+    const [repostCount, setRepostCount] = useState(0); 
     const [submitError, setSubmitError] = useState(''); // for reply section
     const [isPostOwner, setIsPostOwner] = useState(false); 
     const [isAdmin, setIsAdmin] = useState(false); 
@@ -37,7 +39,8 @@ export const SinglePost = () => {
 
     useEffect(() => {
         if (postData && firstRender.current) {
-            setLikeCount(postData.likeCount); // Initialize likeCount from postData
+            setLikeCount(postData.likeCount); 
+            setRepostCount(postData.repostCount);
             firstRender.current = false;
         }
 
@@ -50,9 +53,9 @@ export const SinglePost = () => {
         }
 
     }, [postData, user]);
-    console.log(postData);
-    console.log("first", likeCount);
 
+    console.log(likeCount);
+    console.log(repostCount);
 
 
     useEffect(() => {
@@ -68,10 +71,6 @@ export const SinglePost = () => {
             console.error("Error get isLiked:", error);
         });
     }, [postId]);
-
-    //console.log(liked);
-    console.log(likeCount);
-
     
     const handleLike = async () => {
         const newLikedState = !liked;
@@ -99,6 +98,51 @@ export const SinglePost = () => {
             setLiked(!newLikedState); // Revert the liked state if an error occurs
         }
     };
+
+    useEffect(() => {
+        Axios.get(`${apiUrl}/posts/isReposted/${postId}`, {
+            headers: {
+                accessToken: accessToken, 
+            },
+        })
+        .then((response) => {
+            setReposted(response.data.isReposted) ;
+        })
+        .catch((error) => {
+            console.error("Error get isReposted:", error);
+        });
+    }, [postId]);
+    
+    
+    const handleRepost = async () => {
+        const newRepostedState = !reposted;
+        setReposted(newRepostedState);
+    
+        try {
+            if (newRepostedState) {
+                await Axios.post(`${apiUrl}/posts/reposts/${postId}`, 
+                {
+                    headers: {
+                        accessToken: accessToken,
+                    },
+                });
+                console.log(reposted);
+                setRepostCount(prevCount => prevCount + 1);
+            } else {
+                await Axios.delete(`${apiUrl}/posts/reposts/${postId}`, {
+                    headers: {
+                        accessToken: accessToken,
+                    },
+                });
+                setRepostCount(prevCount => Math.max(prevCount - 1, 0));
+            }
+            
+        } catch (error) {
+            console.error("Error updating repost:", error);
+            setReposted(!newRepostedState); 
+        }
+    };
+
 
     const handleCommentSubmit = async (e) => {
         e.preventDefault();
@@ -183,9 +227,19 @@ export const SinglePost = () => {
                     <div className="card shadow-sm">
                         <div className="card-body">
                             <div className="d-flex align-items-center justify-content-between mb-2">
-                                <Link to={`/profile/${postData.poster.username}`} className='text-decoration-none text-reset username-link'>
-                                    <h5 className="card-title">{postData.poster.username}</h5>
-                                </Link>
+                                <div>
+                                    <Link to={`/profile/${postData.poster.username}`} className='text-decoration-none text-reset username-link'>
+                                        {postData.poster.username} 
+                                    </Link>
+                                    {postData.originalPost && (
+                                        <>
+                                            <span> reposted </span>
+                                            <Link to={`/profile/${postData.originalPost.poster.username}`} className='text-decoration-none text-reset username-link'>
+                                                {postData.originalPost.poster.username}
+                                            </Link>
+                                        </>
+                                    )}
+                                </div>
                                 { (isPostOwner || isAdmin) && <DropdownDelete 
                                             onDelete={(postId) => {
                                                 handleDelete(postId);
@@ -198,12 +252,22 @@ export const SinglePost = () => {
                             <div className="d-flex justify-content-between align-items-center mb-2">
                                 <div className="d-flex text-muted">
                                     <div className="me-3">
-                                        <i className="bi bi-heart-fill me-1" style={{ color: liked ? 'red' : 'gray' }} onClick={handleLike}></i>
+                                        <i className="bi bi-heart-fill me-1" 
+                                            style={{ color: liked ? 'red' : 'gray' }} 
+                                            onClick={handleLike}>                                          
+                                        </i>
                                         {likeCount} Likes
                                     </div>
                                     <div>
                                         <i className="bi bi-chat-fill me-1"></i>
                                         {postData.replies.length} Replies
+                                    </div>
+                                    <div>
+                                        <i className="bi bi-arrow-repeat me-1 ms-3" 
+                                            style={{ color: reposted ? 'DodgerBlue' : 'gray', fontWeight: 'bold' }} 
+                                            onClick={handleRepost}
+                                        ></i>
+                                        {repostCount} Reposts
                                     </div>
                                 </div>
                             </div>

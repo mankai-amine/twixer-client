@@ -13,6 +13,8 @@ const Feed = () => {
     const [hasMore, setHasMore] = useState(true);
     const [likedPosts, setLikedPosts] = useState({}); 
     const [likeCounts, setLikeCounts] = useState({}); 
+    const [repostedPosts, setRepostedPosts] = useState({}); 
+    const [repostCounts, setRepostCounts] = useState({}); 
 
     const apiUrl = `${process.env.REACT_APP_API_URL}/posts/generalFeed`;
     const apiUrl2 = process.env.REACT_APP_API_URL;
@@ -59,10 +61,14 @@ const Feed = () => {
     useEffect(() => {
         const newLikedPosts = {};
         const newLikeCounts = {};
+        const newRepostCounts = {};
         
         posts.forEach(post => {
             // Initialize like counts
             newLikeCounts[post.id] = post.likeCount;
+
+            // Initialize repost counts
+            newRepostCounts[post.id] = post.repostCount;
             
             // Check if each post is liked
             Axios.get(`${apiUrl2}/likes/isLiked/${post.id}`, {
@@ -75,9 +81,22 @@ const Feed = () => {
                 }));
             })
             .catch(error => console.error("Error checking like status:", error));
+
+            // Check if each post has been reposted
+            Axios.get(`${apiUrl2}/posts/isReposted/${post.id}`, {
+                headers: { accessToken }
+            })
+            .then(response => {
+                setRepostedPosts(prev => ({
+                    ...prev,
+                    [post.id]: response.data.isReposted
+                }));
+            })
+            .catch(error => console.error("Error checking repost status:", error));
         });
         
         setLikeCounts(newLikeCounts);
+        setRepostCounts(newRepostCounts);
     }, [posts]);
 
     const handleLike = async (postId) => {
@@ -117,6 +136,46 @@ const Feed = () => {
         }
     };
 
+    const handleRepost = async (postId) => {
+        try {
+            const response = await Axios.get(`${apiUrl2}/posts/isReposted/${postId}`, {
+                headers: { accessToken }
+            });
+            
+            const isReposted = response.data.isReposted;
+            const newRepostedState = !isReposted;
+    
+            if (newRepostedState) {
+                await Axios.post(`${apiUrl2}/posts/reposts/${postId}`, null, 
+                {
+                    headers: { accessToken }
+                });
+                setRepostCounts(prev => ({
+                    ...prev,
+                    [postId]: prev[postId] + 1
+                }));
+            } else {
+                await Axios.delete(`${apiUrl2}/posts/reposts/${postId}`, {
+                    headers: { accessToken }
+                });
+                setRepostCounts(prev => ({
+                    ...prev,
+                    [postId]: Math.max(prev[postId] - 1, 0)
+                }));
+            }
+            
+            setRepostedPosts(prev => ({
+                ...prev,
+                [postId]: newRepostedState
+            }));
+
+            window.location.reload();
+            
+        } catch (error) {
+            console.error("Error handling like:", error);
+        }
+    };
+
 
     return (
         <Container className='mt-4'>
@@ -131,9 +190,19 @@ const Feed = () => {
                     <Link to={`/post/${post.id}`} key={post.id || index}  className="text-decoration-none text-reset">
                         <Card  className='mb-3'>
                             <Card.Body>
-                                <Link to={`/profile/${post.poster.username}`} className='text-decoration-none text-reset username-link'>
-                                    <Card.Title>{post.poster.username}</Card.Title>
-                                </Link>
+                                    <Card.Title>
+                                        <Link to={`/profile/${post.poster.username}`} className='text-decoration-none text-reset username-link'>
+                                            {post.poster.username} 
+                                        </Link>
+                                        {post.originalPost && (
+                                            <>
+                                                <span> reposted </span>
+                                                <Link to={`/profile/${post.originalPost.poster.username}`} className='text-decoration-none text-reset username-link'>
+                                                    {post.originalPost.poster.username}
+                                                </Link>
+                                            </>
+                                        )}
+                                    </Card.Title>
                                 
                                 <Card.Text>
                                     {post.content}
@@ -150,13 +219,28 @@ const Feed = () => {
                                                 } catch (error) {
                                                     console.error('Error handling like:', error);
                                                 }
-                                            }}>                                            
-                                        </i>
+                                            }}
+                                        ></i>
                                         {likeCounts[post.id]} Likes
                                     </div>
                                     <div>
                                         <i className="bi bi-chat-fill me-1"></i>
                                         {post.replies.length} Replies
+                                    </div>
+                                    <div>
+                                        <i className="bi bi-arrow-repeat me-1 ms-3" 
+                                            style={{ color: repostedPosts[post.id] ? 'DodgerBlue' : 'gray', fontWeight: 'bold' }}
+                                            onClick={async (e) => {
+                                                e.preventDefault();  
+                                                e.stopPropagation();
+                                                try {
+                                                    await handleRepost(post.id);
+                                                } catch (error) {
+                                                    console.error('Error handling repost:', error);
+                                                }
+                                            }}
+                                        ></i>
+                                        {repostCounts[post.id]} Reposts
                                     </div>
                                 </div>
                             </Card.Body>
