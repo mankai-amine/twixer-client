@@ -237,6 +237,46 @@ export const Profile = () => {
             console.error("Error handling like:", error);
         }
     };
+
+    const handleRepost = async (postId) => {
+        try {
+            const response = await Axios.get(`${apiUrl}/posts/isReposted/${postId}`, {
+                headers: { accessToken }
+            });
+            
+            const isReposted = response.data.isReposted;
+            const newRepostedState = !isReposted;
+    
+            if (newRepostedState) {
+                await Axios.post(`${apiUrl}/posts/reposts/${postId}`, null, 
+                {
+                    headers: { accessToken }
+                });
+                setRepostCounts(prev => ({
+                    ...prev,
+                    [postId]: prev[postId] + 1
+                }));
+            } else {
+                await Axios.delete(`${apiUrl}/posts/reposts/${postId}`, {
+                    headers: { accessToken }
+                });
+                setRepostCounts(prev => ({
+                    ...prev,
+                    [postId]: Math.max(prev[postId] - 1, 0)
+                }));
+            }
+            
+            setRepostedPosts(prev => ({
+                ...prev,
+                [postId]: newRepostedState
+            }));
+
+            window.location.reload();
+            
+        } catch (error) {
+            console.error("Error handling like:", error);
+        }
+    };
     
 
     if (!user) {
@@ -345,7 +385,15 @@ export const Profile = () => {
                                             <div>
                                                 <i className="bi bi-arrow-repeat me-1 ms-3" 
                                                     style={{ color: repostedPosts[post.id] ? 'DodgerBlue' : 'gray', fontWeight: 'bold' }}
-                                                    //onClick={handleRepost}
+                                                    onClick={async (e) => {
+                                                        e.preventDefault();  
+                                                        e.stopPropagation();
+                                                        try {
+                                                            await handleRepost(post.id);
+                                                        } catch (error) {
+                                                            console.error('Error handling repost:', error);
+                                                        }
+                                                    }}
                                                 ></i>
                                                 {repostCounts[post.id]} Reposts
                                             </div>
