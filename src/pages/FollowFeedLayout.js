@@ -6,7 +6,7 @@ import FollowFeed from '../components/FollowFeed';
 
 const FollowFeedLayout = () => {
     return (
-        <div>
+        <div style={{ backgroundColor: '#e3eef8' }}>
             <Header />
             <Container fluid>
                 <Row>

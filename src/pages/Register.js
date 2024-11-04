@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 import axios from 'axios';
+import FlashMessage from '../helpers/FlashMessage';
 
 const apiUrl = `${process.env.REACT_APP_API_URL}/users`;
 
@@ -21,10 +22,23 @@ const registerSchema = Yup.object().shape({
 
 const Register = () => {
     const [isSubmitted, setIsSubmitted] = useState(false);
+    const [flash, setFlash] = useState({ show: false, message: '', type: '' });
 
     const { register, handleSubmit, formState: { errors } } = useForm({
         resolver: yupResolver(registerSchema),
     });
+
+    const showFlash = (message, type) => {
+        setFlash({ show: true, message, type });
+        // Auto hide after 3 seconds
+        setTimeout(() => {
+            setFlash({ show: false, message: '', type: '' });
+        }, 3000);
+    };
+    
+    const hideFlash = () => {
+        setFlash({ show: false, message: '', type: '' });
+    };
 
     const onSubmit = async (data) => {
         try {
@@ -34,16 +48,25 @@ const Register = () => {
                 setIsSubmitted(true);
             } else {
                 setIsSubmitted(false);
-                alert("Registration failed. Please try again.");
+                showFlash("Registration failed. Please try again.");
             }
         } catch (error) {
             console.error('Registration error:', error);
-            alert(error.response?.data.error || "An error occurred during registration. Please try again.");
+            showFlash(error.response?.data.error || "An error occurred during registration. Please try again.");
         }
     };
 
     return (
-        <div style={{ backgroundColor: '#abcdef', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ backgroundColor: '#e3eef8', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {flash.show && (
+                <div className="position-fixed top-0 start-50 translate-middle-x mt-3" style={{ zIndex: 1050 }}>
+                    <FlashMessage
+                        message={flash.message}
+                        type={flash.type}
+                        onClose={hideFlash}
+                    />
+                </div>
+            )}
             <Container className='mt-5'>
                 <Row className='justify-content-md-center'>
                     <Col md={6} lg={4}>

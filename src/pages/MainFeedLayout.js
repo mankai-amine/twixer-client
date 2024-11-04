@@ -6,7 +6,7 @@ import Feed from '../components/Feed';
 
 const MainFeedLayout = () => {
     return (
-        <div>
+        <div style={{ backgroundColor: '#e3eef8' }}>
             <Header />
             <Container fluid>
                 <Row>

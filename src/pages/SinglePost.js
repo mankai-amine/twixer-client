@@ -221,7 +221,7 @@ export const SinglePost = () => {
     return (
         <>
             <Header />
-            <div className="d-flex" style={{ backgroundColor: 'white', minHeight: '100vh' }}> 
+            <div className="d-flex" style={{ backgroundColor: '#abcdef', minHeight: '100vh' }}> 
                 <Sidebar />
                 <div className="container mt-3" style={{ maxWidth: '900px' }}>
                     <div className="card shadow-sm">
@@ -290,7 +290,7 @@ export const SinglePost = () => {
                                     onChange={(e) => setComment(e.target.value)} 
                                     required 
                                 />
-                                <button className="btn btn-outline-secondary" type="submit">Submit</button>
+                                <button className="btn btn-primary" type="submit" >Submit</button>
                             </div>
                         </form> }
                         <ul className="list-group">

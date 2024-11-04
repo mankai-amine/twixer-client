@@ -67,7 +67,7 @@ const Login = () => {
     };
 
     return (
-        <div style={{ backgroundColor: '#0083b3', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ backgroundColor: '#e3eef8', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <Container className='mt-5'>
             <Row className='justify-content-md-center'>
                 <Col md={6} lg={4}>
