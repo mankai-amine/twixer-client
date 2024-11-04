@@ -10,6 +10,7 @@ import { Link } from 'react-router-dom';
 import { Upload } from '../helpers/Upload';
 import { Container, Form, Button, Row, Col } from 'react-bootstrap';
 import Header from '../components/header';
+import Sidebar from '../components/sidebar';
 
 // Define the form schema with Yup
 const schema = Yup.object().shape({
@@ -78,71 +79,74 @@ export const Account = () => {
     return (
         <div style={{ backgroundColor: '#e3eef8', minHeight: '100vh' }}>
             <Header />
-            <Container>
-                <Row className="justify-content-center mt-5">
-                    <Col md={8}>
-                        {flashMessage && (
-                            <FlashMessage
-                                message={flashMessage.message}
-                                type={flashMessage.type}
-                                onClose={() => setFlashMessage(null)}
-                            />
-                        )}
-                        <h3 className="mb-3">Update settings</h3>
-                        <Form onSubmit={handleSubmit(onSubmit)} className="bg-white p-4 rounded shadow">
-                            <Form.Group className="mb-3">
-                                <Form.Label>Email</Form.Label>
-                                <Form.Control
-                                    type="email"
-                                    isInvalid={!!errors.email}
-                                    {...register("email")}
+            <div className="d-flex">
+                <Sidebar />
+                <Container fluid>
+                    <Row className="justify-content-center mt-5">
+                        <Col md={8} lg={6}>
+                            {flashMessage && (
+                                <FlashMessage
+                                    message={flashMessage.message}
+                                    type={flashMessage.type}
+                                    onClose={() => setFlashMessage(null)}
                                 />
-                                <Form.Control.Feedback type="invalid">
-                                    {errors?.email?.message}
-                                </Form.Control.Feedback>
-                            </Form.Group>
+                            )}
+                            <h3 className="mb-3">Update settings</h3>
+                            <Form onSubmit={handleSubmit(onSubmit)} className="bg-white p-4 rounded shadow">
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Email</Form.Label>
+                                    <Form.Control
+                                        type="email"
+                                        isInvalid={!!errors.email}
+                                        {...register("email")}
+                                    />
+                                    <Form.Control.Feedback type="invalid">
+                                        {errors?.email?.message}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
 
-                            <Form.Group className="mb-3">
-                                <Form.Label>Username</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    isInvalid={!!errors.username}
-                                    {...register("username")}
-                                />
-                                <Form.Control.Feedback type="invalid">
-                                    {errors?.username?.message}
-                                </Form.Control.Feedback>
-                            </Form.Group>
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Username</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        isInvalid={!!errors.username}
+                                        {...register("username")}
+                                    />
+                                    <Form.Control.Feedback type="invalid">
+                                        {errors?.username?.message}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
 
-                            <Form.Group className="mb-3">
-                                <Form.Label>Bio</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    isInvalid={!!errors.bio}
-                                    {...register("bio")}
-                                />
-                                <Form.Control.Feedback type="invalid">
-                                    {errors?.bio?.message}
-                                </Form.Control.Feedback>
-                            </Form.Group>
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Bio</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        isInvalid={!!errors.bio}
+                                        {...register("bio")}
+                                    />
+                                    <Form.Control.Feedback type="invalid">
+                                        {errors?.bio?.message}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
 
-                            <Upload />
-                            <div className="mt-4">
-                                <Button type="submit" variant="primary" className="me-2">
-                                    Update
-                                </Button>
-                                <Button
-                                    as={Link}
-                                    to="/password"
-                                    variant="secondary"
-                                >
-                                    Change Password
-                                </Button>
-                            </div>
-                        </Form>
-                    </Col>
-                </Row>
-            </Container>
+                                <Upload />
+                                <div className="mt-4">
+                                    <Button type="submit" variant="primary" className="me-2">
+                                        Update
+                                    </Button>
+                                    <Button
+                                        as={Link}
+                                        to="/password"
+                                        variant="secondary"
+                                    >
+                                        Change Password
+                                    </Button>
+                                </div>
+                            </Form>
+                        </Col>
+                    </Row>
+                </Container>
+            </div>
         </div>
     );
 };
