@@ -110,13 +110,6 @@ export const CreatePost = () => {
 
                                     {isSubmitted && <p className="text-success">Post created</p>}
                                 </Form>
-                                <Button 
-                                    variant='secondary' 
-                                    onClick={() => navigate(-1)}
-                                    className='mt-2'
-                                >
-                                    Back
-                                </Button>
                             </div>
                         </Col>
                     </Row>
