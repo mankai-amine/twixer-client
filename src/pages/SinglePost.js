@@ -261,6 +261,7 @@ export const SinglePost = () => {
 
                     <div className="mt-4">
                         <h6>Comments</h6>
+                        {user && 
                         <form onSubmit={handleCommentSubmit} className="mb-3">
                             <div className="input-group">
                                 <input 
@@ -273,7 +274,7 @@ export const SinglePost = () => {
                                 />
                                 <button className="btn btn-outline-secondary" type="submit">Submit</button>
                             </div>
-                        </form>
+                        </form> }
                         <ul className="list-group">
                             {postData.replies.map((reply, index) => (
                                 <li key={index} className="list-group-item">
