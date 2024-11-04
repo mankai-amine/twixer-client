@@ -7,6 +7,7 @@ import Axios from 'axios';
 import { UserContext } from "../helpers/UserContext"
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/header';
+import FlashMessage from '../helpers/FlashMessage';
 
 const apiUrl = `${process.env.REACT_APP_API_URL}/posts`;
 
@@ -18,6 +19,7 @@ const postSchema = Yup.object().shape({
 
 export const CreatePost = () => {
     const [isSubmitted, setIsSubmitted] = useState(false);
+    const [flash, setFlash] = useState({ show: false, message: '', type: '' });
 
     const {register, handleSubmit, formState: { errors }} = useForm({
         resolver: yupResolver(postSchema),
@@ -30,6 +32,18 @@ export const CreatePost = () => {
     const [serverErrors, setServerErrors] = useState("");
 
     const navigate = useNavigate();
+
+    const showFlash = (message, type) => {
+        setFlash({ show: true, message, type });
+        // Auto hide after 3 seconds
+        setTimeout(() => {
+            setFlash({ show: false, message: '', type: '' });
+        }, 3000);
+    };
+    
+    const hideFlash = () => {
+        setFlash({ show: false, message: '', type: '' });
+    };
 
     const onSubmit = async (data) => {
         setServerErrors("");
@@ -60,9 +74,18 @@ export const CreatePost = () => {
     };
     // TODO customize the form
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        <div style={{display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
             <Header />
-            <div style={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#abcdef' }}>
+            {flash.show && (
+                <div className="position-fixed top-0 start-50 translate-middle-x mt-3" style={{ zIndex: 1050 }}>
+                    <FlashMessage
+                        message={flash.message}
+                        type={flash.type}
+                        onClose={hideFlash}
+                    />
+                </div>
+            )}
+            <div style={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',  backgroundColor: '#e3eef8'}}>
                 <Container className='mt-5'>
                     <Row className='justify-content-md-center'>
                         <Col md={6} lg={4}>
@@ -85,6 +108,13 @@ export const CreatePost = () => {
 
                                 {isSubmitted && <p className="text-success">Post created</p>}
                             </Form>
+                            <Button 
+                                variant='secondary' 
+                                onClick={() => navigate(-1)}
+                                className='mt-2'
+                            >
+                                Back
+                            </Button>
                         </div>
                     </Col>
                 </Row>

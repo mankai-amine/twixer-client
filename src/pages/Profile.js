@@ -286,7 +286,7 @@ export const Profile = () => {
 
     
     return (
-        <div style={{ backgroundColor: 'white', minHeight: '100vh', margin: '0', padding: '0' }}>
+        <div style={{ backgroundColor: '#e3eef8', minHeight: '100vh', margin: '0', padding: '0' }}>
         {<Header />}
         <div className="d-flex" style={{ marginTop: '0', paddingTop: '0' }}>
             <Sidebar style={{ margin: '0', padding: '0', height: '100vh', position: 'sticky', top: '0' }} />  

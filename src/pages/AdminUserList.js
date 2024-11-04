@@ -3,6 +3,7 @@ import { Container, Table, Pagination, Button, Row, Col, Form } from 'react-boot
 import axios from 'axios';
 import Header from '../components/header';
 import Sidebar from '../components/sidebar';
+import FlashMessage from '../helpers/FlashMessage';
 
 const AdminUserList = () => {
     const [users, setUsers] = useState([]);
@@ -11,6 +12,7 @@ const AdminUserList = () => {
     const [totalUsers, setTotalUsers] = useState(0);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null); // For error handling
+    const [flash, setFlash] = useState({ show: false, message: '', type: '' });
 
     const usersPerPage = 10;
     const apiUrl1 = `${process.env.REACT_APP_API_URL}/users/all`;
@@ -18,6 +20,18 @@ const AdminUserList = () => {
     const apiUrlRole = `${process.env.REACT_APP_API_URL}/users/role`;
 
     const roles = ["user", "admin"];
+
+    const showFlash = (message, type) => {
+        setFlash({ show: true, message, type });
+        // Auto hide after 3 seconds
+        setTimeout(() => {
+            setFlash({ show: false, message: '', type: '' });
+        }, 3000);
+    };
+
+    const hideFlash = () => {
+        setFlash({ show: false, message: '', type: '' });
+    };
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -59,7 +73,7 @@ const AdminUserList = () => {
             setUsers(users.map(user => user.id === id ? { ...user, account_status: 'banned' } : user));
         } catch (error) {
             console.error(`Failed to ban user: ${error.response?.data?.message || error.message}`);
-            alert(`Failed to ban user: ${error.response?.data?.message || error.message}`);
+            showFlash(`Failed to ban user: ${error.response?.data?.message || error.message}`);
         }
     };
 
@@ -74,7 +88,7 @@ const AdminUserList = () => {
             setUsers(users.map(user => user.id === id ? { ...user, account_status: 'active' } : user));
         } catch (error) {
             console.error(`Failed to unban user: ${error.response?.data?.message || error.message}`);
-            alert(`Failed to unban user: ${error.response?.data?.message || error.message}`);
+            showFlash(`Failed to unban user: ${error.response?.data?.message || error.message}`);
         }
     };
 
@@ -88,7 +102,7 @@ const AdminUserList = () => {
             setUsers(users.map(user => user.id === userId ? { ...user, role: newRole } : user));
         } catch (error) {
             console.error(`Failed to update role: ${error.response?.data?.message || error.message}`);
-            alert(`Failed to update role: ${error.response?.data?.message || error.message}`);
+            showFlash(`Failed to update role: ${error.response?.data?.message || error.message}`);
         }
     };
 
@@ -145,8 +159,17 @@ const AdminUserList = () => {
     
 
     return (
-        <div>
+        <div style={{ backgroundColor: '#e3eef8' }}>
             <Header />
+            {flash.show && (
+                <div className="position-fixed top-0 start-50 translate-middle-x mt-3" style={{ zIndex: 1050 }}>
+                    <FlashMessage
+                        message={flash.message}
+                        type={flash.type}
+                        onClose={hideFlash}
+                    />
+                </div>
+            )}
             <Container fluid className="mt-4">
                 <Row>
                     <Col md={3} lg={2} className="px-0">

@@ -9,7 +9,7 @@
 
 /* Login form container */
 .login-box {
-    background-color: #a8d6e6;
+    background-color: #ddd;
     padding: 40px 30px;
     border-radius: 10px;
     max-width: 400px;
@@ -21,12 +21,12 @@
 .login-logo {
     font-size: 2.5rem;
     font-weight: bold;
-    color: rgb(255, 255, 255);
+    color: rgb(0, 0, 0);
     letter-spacing: 0.1rem;
     margin-bottom: 1.5rem;
 }
 
-/* Form control (input field) styling for the login form */
+/* Form control styling for the login form */
 .login-form-control {
     background-color: white;
     color: black;
@@ -41,9 +41,9 @@
 
 /* Login button styling */
 .custom-button {
-    background-color: #a9b0f0 !important;
+    background-color: #3590e9 !important;
     border-color: #3590e9 !important;
-    color: #3590e9 !important;
+    color: white !important;
     border: none;
     font-weight: bold;
     padding: 12px;
@@ -55,7 +55,7 @@
 }
 
 .login-btn:hover {
-    background-color: #0056b3;
+    background-color: #0056b3 !important;
 }
 
 /* Link styling for forgot password and sign-up */
@@ -94,9 +94,9 @@
 }
 
 .mt-3 {
-    color: white !important;
+    color: rgb(0, 0, 0) !important;
 }
 
 .mb-4 {
-    color: white !important;
+    color: rgb(0, 0, 0) !important;
 }

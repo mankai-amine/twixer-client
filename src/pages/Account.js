@@ -8,6 +8,8 @@ import { UserContext } from "../helpers/UserContext";
 import FlashMessage from "../helpers/FlashMessage";
 import { Link } from 'react-router-dom';
 import { Upload } from '../helpers/Upload';
+import { Container, Form, Button, Row, Col } from 'react-bootstrap';
+import Header from '../components/header';
 
 // Define the form schema with Yup
 const schema = Yup.object().shape({
@@ -74,52 +76,73 @@ export const Account = () => {
 
     
     return (
-        <div className="container mt-5 col-md-8">
-            {flashMessage && (
-                <FlashMessage
-                    message={flashMessage.message}
-                    type={flashMessage.type}
-                    onClose={() => setFlashMessage(null)}
-                />
-            )}
-            <h3 className="mb-3">Update settings</h3>
-            <form onSubmit={handleSubmit(onSubmit)} className="bg-light p-4 rounded shadow">
-                <div className="mb-3">
-                    <label className="form-label">Email</label>
-                    <input
-                        type="email"
-                        className={`form-control ${errors.email ? 'is-invalid' : ''}`}
-                        {...register("email")}
-                    />
-                    {errors.email && <div className="invalid-feedback">{errors.email.message}</div>}
-                </div>
+        <div style={{ backgroundColor: '#e3eef8', minHeight: '100vh' }}>
+            <Header />
+            <Container>
+                <Row className="justify-content-center mt-5">
+                    <Col md={8}>
+                        {flashMessage && (
+                            <FlashMessage
+                                message={flashMessage.message}
+                                type={flashMessage.type}
+                                onClose={() => setFlashMessage(null)}
+                            />
+                        )}
+                        <h3 className="mb-3">Update settings</h3>
+                        <Form onSubmit={handleSubmit(onSubmit)} className="bg-white p-4 rounded shadow">
+                            <Form.Group className="mb-3">
+                                <Form.Label>Email</Form.Label>
+                                <Form.Control
+                                    type="email"
+                                    isInvalid={!!errors.email}
+                                    {...register("email")}
+                                />
+                                <Form.Control.Feedback type="invalid">
+                                    {errors?.email?.message}
+                                </Form.Control.Feedback>
+                            </Form.Group>
 
-                <div className="mb-3">
-                    <label className="form-label">Username</label>
-                    <input
-                        type="text"
-                        className={`form-control ${errors.username ? 'is-invalid' : ''}`}
-                        {...register("username")}
-                    />
-                    {errors.username && <div className="invalid-feedback">{errors.username.message}</div>}
-                </div>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Username</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    isInvalid={!!errors.username}
+                                    {...register("username")}
+                                />
+                                <Form.Control.Feedback type="invalid">
+                                    {errors?.username?.message}
+                                </Form.Control.Feedback>
+                            </Form.Group>
 
-                <div className="mb-3">
-                    <label className="form-label">Bio</label>
-                    <input
-                        type="text"
-                        className={`form-control ${errors.bio ? 'is-invalid' : ''}`}
-                        {...register("bio")}
-                    />
-                    {errors.bio && <div className="invalid-feedback">{errors.bio.message}</div>}
-                </div>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Bio</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    isInvalid={!!errors.bio}
+                                    {...register("bio")}
+                                />
+                                <Form.Control.Feedback type="invalid">
+                                    {errors?.bio?.message}
+                                </Form.Control.Feedback>
+                            </Form.Group>
 
-                <Upload/>
-                <div className='mt-4'>
-                    <button type="submit" className="btn btn-primary">Update</button>
-                    <Link to="/password" className="btn btn-secondary ms-2">Change Password</Link>
-                </div>
-            </form>
+                            <Upload />
+                            <div className="mt-4">
+                                <Button type="submit" variant="primary" className="me-2">
+                                    Update
+                                </Button>
+                                <Button
+                                    as={Link}
+                                    to="/password"
+                                    variant="secondary"
+                                >
+                                    Change Password
+                                </Button>
+                            </div>
+                        </Form>
+                    </Col>
+                </Row>
+            </Container>
         </div>
     );
 };
