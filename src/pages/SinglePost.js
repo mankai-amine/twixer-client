@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext, useRef  } from 'react';
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Axios from 'axios';
 import { useParams, Link } from 'react-router-dom';
-import { Container, Row, Col, Spinner, Alert, Button, Form } from 'react-bootstrap';
+import { Container, Spinner, Alert } from 'react-bootstrap';
 import Header from '../components/header';
 import Sidebar from '../components/sidebar';
 import { UserContext } from "../helpers/UserContext";
@@ -183,6 +183,23 @@ export const SinglePost = () => {
         });
     }
 
+    const handleReplyDelete = (replyId) =>{
+        console.log("entering delete reply");
+        Axios.patch(`${apiUrl}/replies/${replyId}`, null, {
+            headers: {
+                accessToken: accessToken,
+            },
+        })
+        .then(async () => {
+            console.log("Reply deleted");
+            postData.content="This reply was deleted"
+            await queryClient.invalidateQueries(["single post", id]);
+        })
+        .catch((error) => {
+            console.error("Error fetching replies:", error);
+        });
+    }
+
     if (isPending) {
         return (
             <Container className="text-center mt-5">
@@ -226,8 +243,9 @@ export const SinglePost = () => {
                                 { (isPostOwner || isAdmin) && <DropdownDelete 
                                             onDelete={(postId) => {
                                                 handleDelete(postId);
-                                            }} 
-                                            postId={postData.id} 
+                                            }}
+                                            contentId={postData.id}
+                                            contentType={"post"} 
                                 />}
                             </div>
                             <p className="card-text">{postData.content}</p>
@@ -278,7 +296,19 @@ export const SinglePost = () => {
                         <ul className="list-group">
                             {postData.replies.map((reply, index) => (
                                 <li key={index} className="list-group-item">
+                                    <div className="d-flex align-items-center justify-content-between mb-2">
+                                    <h4>{reply.replier.username} says:</h4>
+                                    { ((reply.replier.username === user.username) || isAdmin) && <DropdownDelete 
+                                            onDelete={(replyId) => {
+                                                handleReplyDelete(replyId);
+                                            }} 
+                                            contentId={reply.id}
+                                            contentType={"reply"}
+                                    />}
+                                    </div>
                                     {reply.content}
+                                    <span>{reply.likeCount}</span>
+                                    
                                 </li>
                             ))}
                         </ul>
