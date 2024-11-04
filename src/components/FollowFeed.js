@@ -36,10 +36,8 @@ const FollowFeed = () => {
                 setHasMore(false);
             } else {
                 if (pageNum === 1) {
-                    // If it's the first page, replace existing posts
                     setPosts(newPosts);
                 } else {
-                    // For subsequent pages, append new posts
                     setPosts((prevPosts) => [...prevPosts, ...newPosts]);
                 }
                 setPage(pageNum + 1);
@@ -63,13 +61,10 @@ const FollowFeed = () => {
         const newRepostCounts = {};
         
         posts.forEach(post => {
-            // Initialize like counts
             newLikeCounts[post.id] = post.likeCount;
 
-             // Initialize repost counts
-             newRepostCounts[post.id] = post.repostCount;
+            newRepostCounts[post.id] = post.repostCount;
             
-            // Check if each post is liked
             Axios.get(`${apiUrl2}/likes/isLiked/${post.id}`, {
                 headers: { accessToken }
             })
@@ -81,7 +76,6 @@ const FollowFeed = () => {
             })
             .catch(error => console.error("Error checking like status:", error));
 
-            // Check if each post has been reposted
             Axios.get(`${apiUrl2}/posts/isReposted/${post.id}`, {
                 headers: { accessToken }
             })

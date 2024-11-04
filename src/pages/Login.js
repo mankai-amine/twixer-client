@@ -72,7 +72,7 @@ const Login = () => {
             <Row className='justify-content-md-center'>
                 <Col md={6} lg={4}>
                     <div className='login-box text-center'>
-                        <h2 className='mb-4' twixer-logo>TwiXer</h2>
+                        <h2 className='mb-4 twixer-logo'>TwiXer</h2>
 
                         <Form onSubmit={handleSubmit(onSubmit)}>
                             <Form.Group controlId='formUsername' className='mb-3'>

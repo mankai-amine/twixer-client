@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { UserContext } from "../helpers/UserContext";
 import FlashMessage from "../helpers/FlashMessage";
 
-// Define the form schema with Yup
+
 const schema = Yup.object().shape({
     currentPassword: Yup.string()
         .min(6, "Password must be at least 6 characters")

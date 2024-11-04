@@ -60,7 +60,6 @@ export const CreatePost = () => {
             } else {
                 setIsSubmitted(false);
                 alert("Posting failed. Please try again.");
-                // TODO change to something other than alert
             }
 
         } catch (error) {
@@ -73,7 +72,7 @@ export const CreatePost = () => {
             
         }
     };
-    // TODO customize the form
+
     return (
         <div style={{ backgroundColor: '#e3eef8', minHeight: '100vh' }}>
             <Header />

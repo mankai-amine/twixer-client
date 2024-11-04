@@ -14,14 +14,14 @@ const apiUrl = `${process.env.REACT_APP_API_URL}`;
 export const SinglePost = () => {
     const { id } = useParams();
     const [comment, setComment] = useState('');
-    const [liked, setLiked] = useState(false); // Track whether the post is liked
-    const [likeCount, setLikeCount] = useState(0); // Track the like count
+    const [liked, setLiked] = useState(false); 
+    const [likeCount, setLikeCount] = useState(0); 
     const [reposted, setReposted] = useState(false); 
     const [repostCount, setRepostCount] = useState(0); 
-    const [submitError, setSubmitError] = useState(''); // for reply section
+    const [submitError, setSubmitError] = useState(''); 
     const [isPostOwner, setIsPostOwner] = useState(false); 
     const [isAdmin, setIsAdmin] = useState(false); 
-    const firstRender = useRef(true); // Initialize ref to track first render
+    const firstRender = useRef(true); 
 
 
     const queryClient = useQueryClient();
@@ -95,7 +95,8 @@ export const SinglePost = () => {
             
         } catch (error) {
             console.error("Error updating like:", error);
-            setLiked(!newLikedState); // Revert the liked state if an error occurs
+            // Revert the liked state if an error occurs
+            setLiked(!newLikedState); 
         }
     };
 
@@ -158,7 +159,7 @@ export const SinglePost = () => {
                 },
             });
             console.log("Reply added");
-            setComment(''); // Clear the input after successful submission
+            setComment(''); 
             // Invalidate and refetch the post query to show the new comment
             await queryClient.invalidateQueries(["single post", id]);
             
