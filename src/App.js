@@ -28,12 +28,12 @@ function App() {
         <Router>
           <QueryClientProvider client={client}>
           <Routes>
-            <Route path='/createpost' element={<CreatePost />} />
+            <Route path='/createpost' element={<ProtectedRoute element={CreatePost} />} />
             <Route path='/login' element={<Login />} />
             <Route path='/register' element={<Register />} />
-            <Route path='/account' element={<Account />} />
-            <Route path='/password' element={<Password />} />
-            <Route path='/profile/:username' element={<Profile />} />
+            <Route path='/account' element={<ProtectedRoute element={Account} />} />
+            <Route path='/password' element={<ProtectedRoute element={Password} />} />
+            <Route path='/profile/:username' element={<ProtectedRoute element={Profile} />} />
             <Route path='/post/:id' element={<SinglePost />} />
             <Route path='/' element={<ProtectedRoute element={MainFeedLayout} />} />
             <Route path='/following' element={<ProtectedRoute element={FollowFeedLayout} />} />
