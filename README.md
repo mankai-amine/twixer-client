@@ -22,7 +22,7 @@ Our technology stack for making this app consisted of: Node.js, Express, Sequeli
 •	All deletion is “soft deletion”, which means deleted posts and comments become invisible to all users but remain in the database with a special flag for review
 
 # How to Run
-If you would like to run our application on your own device, you will need both the frontend and backend to be running simultaneously, as well as your own database/image host. Our backend repo: https://github.com/SDarbyson/twixer-server
+If you would like to run our application on your own device, you will need both the frontend and backend to be running simultaneously, as well as your own database/image host. Our backend repo: https://github.com/mankai-amine/twixer-server
 # Client environment variables:
 REACT_APP_API_URL=
 
